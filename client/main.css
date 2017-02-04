@@ -1,4 +1,4 @@
-html, body{
+  html, body{
   background-color: #000;
   margin: 0;
   padding: 0;
@@ -47,10 +47,19 @@ button:hover{
   transform: translate(0px, 2px);
 }
 
-#room-id{
+#error{
+  position: fixed;
+  margin: 0 auto;
+}
+
+input{
   width: 200px;
   height: 50px;
   font-size: 1em;
   text-align: center;
   border: 3px solid #ddd;
+}
+
+#wrapper{
+  display: none;
 }

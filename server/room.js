@@ -2,6 +2,8 @@ module.exports = {
 
   rooms: [], //from 0000 to 9999 (10000 rooms available)
 
+  currApp: Array(10000).fill(-1), //app index in apps.json (-1 = no app selected yet)
+
   //create a new randomly generated room, setting the player "host" as the host
   createRoom: function(host){
     if(host.room !== undefined){ //switching rooms
