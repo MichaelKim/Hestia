@@ -2,11 +2,9 @@ module.exports = {
 
   rooms: [], //from 0000 to 9999 (10000 rooms available)
 
-  currApp: Array(10000).fill(-1), //app index in apps.json (-1 = no app selected yet)
-
   //create a new randomly generated room, setting the player "host" as the host
   createRoom: function(host){
-    if(host.room !== undefined){ //switching rooms
+    if(host.room !== -1){ //switching rooms
       this.leaveRoom(host);
     }
 
@@ -16,7 +14,8 @@ module.exports = {
     var newRoom = {
       id: roomid,
       host: host.id,
-      players: [host]
+      players: [host],
+      app: -1
     };
     this.rooms[roomid] = newRoom;
 
@@ -24,14 +23,16 @@ module.exports = {
   },
 
   //let player "player" join room with id "room"
-  joinRoom: function(room, player){
-    if(player.room !== undefined){ //switching rooms
+  joinRoom: function(roomId, player){
+    if(player.room !== -1){ //switching rooms
       this.leaveRoom(player);
     }
 
-    player.room = room;
-    this.rooms[room].players.push(player);
-    console.log("rooms.joinRoom: room " + room + " joined; player: " + player.id);
+    player.room = roomId;
+    player.host = false;
+    this.rooms[roomId].players.push(player);
+    
+    console.log("rooms.joinRoom: room " + roomId + " joined; player: " + player.id);
   },
 
   // "player" leaves room they're currently in
@@ -47,10 +48,12 @@ module.exports = {
           delete this.rooms[player.room];
         }
         else if(this.rooms[player.room].host === player.id){ //player leaving was the host, pick a new host
-          this.rooms[player.room].host = roomPlayers[0].id;
           console.log("room " + player.room + ", host switched to " + roomPlayers[0].id);
+          this.rooms[player.room].host = roomPlayers[0].id;
           roomPlayers[0].host = true;
         }
+        player.room = -1;
+        player.host = false;
         return;
       }
     }

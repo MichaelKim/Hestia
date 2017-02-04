@@ -7,6 +7,9 @@ var error;
 /* Select app screen */
 var appId, selectBtn;
 
+/* Info panel */
+var roomInfo, hostInfo, appInfo;
+
 window.onload = function(){
   joinBtn = document.getElementById("join-btn"); //join room button
   createBtn = document.getElementById("create-btn"); //create room button
@@ -15,6 +18,10 @@ window.onload = function(){
 
   appId = document.getElementById("app-id"); //app id (when selecting app as host)
   selectBtn = document.getElementById("select-btn"); //enter button for appId
+
+  roomInfo = document.getElementById("room-info");
+  hostInfo = document.getElementById("host-info");
+  appInfo = document.getElementById("app-info");
 
   joinBtn.onclick = function(){
     if(validId(roomId.value)){
@@ -50,12 +57,24 @@ window.onload = function(){
 
     socket.on("room-created", function(newId, appNames){
       console.log("Created room: " + newId);
+      roomInfo.innerHTML = "Room: " + newId;
+      hostInfo.innerHTML = "Host: true";
+      appInfo.innerHTML = "App: not selected";
       loadApps(appNames);
     });
 
-    socket.on("room-joined", function(newId, appNames){
+    socket.on("room-joined", function(newId, appNames, appId){
       console.log("Joined room: " + newId);
+      roomInfo.innerHTML = "Room: " + newId;
+      hostInfo.innerHTML = "Host: false";
+      if(appId === -1) appInfo.innerHTML = "App: not selected";
+      else appInfo.innerHTML = "App: " + appId;
       loadApps(appNames);
+    });
+
+    socket.on("app-changed", function(appId){
+      console.log("app changed to " + appId);
+      appInfo.innerHTML = "App: " + appId;
     });
   }
 

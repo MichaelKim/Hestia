@@ -47,9 +47,8 @@ button:hover{
   transform: translate(0px, 2px);
 }
 
-#error{
+#info{
   position: fixed;
-  margin: 0 auto;
 }
 
 input{

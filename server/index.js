@@ -11,7 +11,7 @@ var sockets = {};
 io.on("connection", function(socket){
   var newPlayer = {
     id: socket.id,
-    room: undefined,
+    room: -1,
     host: false
   };
 
@@ -29,18 +29,25 @@ io.on("connection", function(socket){
 
     roomManager.joinRoom(roomId, newPlayer);
     sockets[newPlayer.id] = socket;
-    socket.emit("room-joined", newPlayer.room, appManager.appNames());
+    socket.emit("room-joined", newPlayer.room, appManager.appNames(), roomManager.rooms[newPlayer.room].app);
   });
 
   socket.on("selectApp", function(appId){
-    if(appId >= 0 && appId < appManager.apps.length){
-      roomManager.currApp[newPlayer.room] = appId;
-      console.log("room " + newPlayer.room + " selected app " + appId);
-
-      
+    if(!newPlayer.host){
+      socket.emit("error-msg", "Only host can change app");
+    }
+    else if(appId < 0 || appId >= appManager.apps.length){
+      socket.emit("error-msg", "Invalid app ID");
     }
     else{
-      socket.emit("error-msg", "Invalid app ID");
+      console.log("room " + newPlayer.room + " selected app " + appId);
+      roomManager.rooms[newPlayer.room].app = appId;
+
+      //send to everyone in room about app selection
+      var roomPlayers = roomManager.rooms[newPlayer.room].players;
+      for(var i=0;i<roomPlayers.length;i++){
+        sockets[roomPlayers[i].id].emit("app-changed", appId);
+      }
     }
   });
 
