@@ -76,6 +76,11 @@ window.onload = function(){
       console.log("app changed to " + appId);
       appInfo.innerHTML = "App: " + appId;
     });
+
+    socket.on("host-changed", function(hostId){
+      console.log("changed to host");
+      hostInfo.innerHTML = "Host: true";
+    });
   }
 
   function validId(id){

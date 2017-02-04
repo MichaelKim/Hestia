@@ -16,12 +16,22 @@ io.on("connection", function(socket){
   };
 
   socket.on("startCreate", function(){
+    if(newPlayer.room !== -1){ //switching rooms
+      var newHostId = roomManager.leaveRoom(newPlayer);
+      if(newHostId) sockets[newHostId].emit("host-changed", newHostId);
+    }
+
     roomManager.createRoom(newPlayer);
     sockets[newPlayer.id] = socket;
     socket.emit("room-created", newPlayer.room, appManager.appNames());
   });
 
   socket.on("startJoin", function(roomId){
+    if(newPlayer.room !== -1){ //switching rooms
+      var newHostId = roomManager.leaveRoom(newPlayer);
+      if(newHostId) sockets[newHostId].emit("host-changed", newHostId);
+    }
+
     if(!(roomId in roomManager.rooms)){ //room doesn't exist
       socket.emit("error-msg", "Room does not exist");
       return;
@@ -52,7 +62,8 @@ io.on("connection", function(socket){
   });
 
   socket.on('disconnect', function(){
-    roomManager.leaveRoom(newPlayer);
+    var newHostId = roomManager.leaveRoom(newPlayer);
+    if(newHostId) sockets[newHostId].emit("host-changed", newHostId);
     console.log("Player dc: " + newPlayer.id);
   });
 
