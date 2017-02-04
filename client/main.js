@@ -10,6 +10,12 @@ var appId, selectBtn;
 /* Info panel */
 var roomInfo, hostInfo, appInfo;
 
+/* HTML5 magics */
+HTMLElement.prototype.createShadowRoot =
+  HTMLElement.prototype.createShadowRoot ||
+  HTMLElement.prototype.webkitCreateShadowRoot ||
+  function() {};
+
 window.onload = function(){
   joinBtn = document.getElementById("join-btn"); //join room button
   createBtn = document.getElementById("create-btn"); //create room button
@@ -120,12 +126,12 @@ function loadApp(html, js){
   var appBox = document.getElementById("app-box");
   wrapper.style.display = "none";
   appBox.style.display = "block";
-  appBox.innerHTML += html;
 
-  (function(){
-    eval(js); //i'm so sorry
-  })();
-
+  var root = appBox.createShadowRoot();
+  var temp = document.createElement("template");
+  temp.innerHTML = html + "<script type='text/javascript'>(function(){ var appdocument = document.getElementById('app-box').shadowRoot;" + js + "})();</script>";
+  var c = document.importNode(temp.content, true);
+  root.appendChild(c);
 }
 
 
