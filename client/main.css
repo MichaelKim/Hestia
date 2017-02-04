@@ -1,4 +1,4 @@
-  html, body{
+html, body{
   background-color: #000;
   margin: 0;
   padding: 0;
@@ -61,4 +61,13 @@ input{
 
 #wrapper{
   display: none;
+}
+
+#app-box{
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }

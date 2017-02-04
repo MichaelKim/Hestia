@@ -58,6 +58,10 @@ io.on("connection", function(socket){
       for(var i=0;i<roomPlayers.length;i++){
         sockets[roomPlayers[i].id].emit("app-changed", appId);
       }
+
+      appManager.getAppFiles(appId, function(appData){
+        socket.emit("app-selected", appData);
+      });
     }
   });
 

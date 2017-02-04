@@ -60,7 +60,7 @@ window.onload = function(){
       roomInfo.innerHTML = "Room: " + newId;
       hostInfo.innerHTML = "Host: true";
       appInfo.innerHTML = "App: not selected";
-      loadApps(appNames);
+      loadAppsList(appNames);
     });
 
     socket.on("room-joined", function(newId, appNames, appId){
@@ -69,7 +69,7 @@ window.onload = function(){
       hostInfo.innerHTML = "Host: false";
       if(appId === -1) appInfo.innerHTML = "App: not selected";
       else appInfo.innerHTML = "App: " + appId;
-      loadApps(appNames);
+      loadAppsList(appNames);
     });
 
     socket.on("app-changed", function(appId){
@@ -81,6 +81,13 @@ window.onload = function(){
       console.log("changed to host");
       hostInfo.innerHTML = "Host: true";
     });
+
+    socket.on("app-selected", function(data){
+      console.log("retrived app: ");
+      console.log(data.html);
+      console.log(data.js);
+      loadApp(data.html, data.js);
+    });
   }
 
   function validId(id){
@@ -90,7 +97,7 @@ window.onload = function(){
 };
 
 
-function loadApps(appNames){
+function loadAppsList(appNames){
   console.log(appNames);
   var wrapper = document.getElementById("wrapper");
   var header = document.getElementById("header-title");
@@ -108,6 +115,18 @@ function loadApps(appNames){
   }
 }
 
+function loadApp(html, js){
+  var wrapper = document.getElementById("wrapper");
+  var appBox = document.getElementById("app-box");
+  wrapper.style.display = "none";
+  appBox.style.display = "block";
+  appBox.innerHTML += html;
+
+  (function(){
+    eval(js); //i'm so sorry
+  })();
+
+}
 
 
 var errorInterval;
