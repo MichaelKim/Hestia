@@ -1,0 +1,23 @@
+{
+  "name": "qhacks2017",
+  "version": "1.0.0",
+  "description": "QHacks2017 Submission",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LenKagamine/QHacks2017.git"
+  },
+  "bugs": "https://github.com/LenKagamine/QHacks2017/issues",
+  "dependencies": {
+    "compression": "^1.6.0",
+    "express": "^4.13.3",
+    "socket.io": "^1.3.6"
+  },
+  "engines": {
+    "node": ">=0.12.7"
+  },
+  "private": true,
+  "main": "./server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  }
+}
