@@ -10,6 +10,9 @@ var appId, selectBtn;
 /* Info panel */
 var roomInfo, hostInfo, appInfo;
 
+/* App container */
+var appBox;
+
 /* HTML5 magics */
 HTMLElement.prototype.createShadowRoot =
   HTMLElement.prototype.createShadowRoot ||
@@ -28,6 +31,8 @@ window.onload = function(){
   roomInfo = document.getElementById("room-info");
   hostInfo = document.getElementById("host-info");
   appInfo = document.getElementById("app-info");
+
+  appBox = document.getElementById("app-box");
 
   joinBtn.onclick = function(){
     if(validId(roomId.value)){
@@ -94,6 +99,11 @@ window.onload = function(){
       console.log(data.js);
       loadApp(data); //contains .html and .js
     });
+
+    socket.on("data-app-server", function(){
+      var args = Array.prototype.slice.call(arguments);
+      appBox.execute(args);
+    });
   }
 
   function validId(id){
@@ -123,13 +133,14 @@ function loadAppsList(appNames){
 
 function loadApp(data){
   var wrapper = document.getElementById("wrapper");
-  var appBox = document.getElementById("app-box");
   wrapper.style.display = "none";
   appBox.style.display = "block";
 
   customElements.define("app-window", class extends HTMLElement{
     constructor(){
       super();
+
+      this._ons = []; //{name: "name of call", func: "function that runs"}
     }
 
     set root(appdata){
@@ -160,12 +171,25 @@ function loadApp(data){
       console.log(args);
       socket.emit.apply(socket, args);
     }
+
+    on(){
+      var args = Array.prototype.slice.call(arguments);
+      this._ons[args[0]] = args[1];
+      console.log("Add on: " + args[0]);
+      console.log(args[1]);
+    }
   });
 
   //appBox.socket = socket;
 
-  data.js = "var app = document.getElementById('app-box');" + data.js;
+  data.js = "var app = document.getElementById('app-box');" +
+            "app.execute = function(args){" +
+              "(app._ons[args[0]]).apply(app._ons[args[0]], args.slice(1));" +
+            "};" +  data.js;
   appBox.root = data;
+
+
+  appBox.execute(["test", "name", "name2"]);
 
 }
 

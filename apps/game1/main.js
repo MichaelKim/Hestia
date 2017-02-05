@@ -1,5 +1,14 @@
-alert("hello!");
+//alert("hello!");
+var count = app.document.getElementById("count");
+
 app.document.getElementById("btn").onclick = function(){
-  alert("You clicked me!");
+  app.emit("button-press");
 };
-app.emit("test", "hello from app");
+
+app.on("newCount", function(num){
+  count.innerHTML = num;
+});
+
+app.on("test", function(msg, msg2){
+  console.log("hello world, " + msg + " and " + msg2);
+});
