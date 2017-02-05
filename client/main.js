@@ -102,6 +102,7 @@ window.onload = function(){
 
     socket.on("data-app-server", function(){
       var args = Array.prototype.slice.call(arguments);
+      console.log("data from server app: " + args);
       appBox.execute(args);
     });
   }
@@ -182,15 +183,10 @@ function loadApp(data){
 
   //appBox.socket = socket;
 
-  data.js = "var app = document.getElementById('app-box');" +
-            "app.execute = function(args){" +
-              "(app._ons[args[0]]).apply(app._ons[args[0]], args.slice(1));" +
-            "};" +  data.js;
+  data.js = "var app = document.getElementById('app-box');" +  data.js;
   appBox.root = data;
 
-
-  appBox.execute(["test", "name", "name2"]);
-
+  appBox.execute(["test"]);
 }
 
 

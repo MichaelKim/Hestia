@@ -67,7 +67,11 @@ io.on("connection", function(socket){
 
   socket.on("dataApp", function(){ //retrieve data sent by app
     var args = Array.prototype.slice.call(arguments);
-    appManager.dataRetrieved(args[0], args.slice(1));
+    if(args[0] === "button-press"){
+      console.log("app press button");
+      socket.emit("data-app-server", "newCount", Math.floor((Math.random() * 10) + 1));
+    }
+    //appManager.dataRetrieved(args[0], args.slice(1));
   });
 
   socket.on('disconnect', function(){
