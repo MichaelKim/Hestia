@@ -97,8 +97,8 @@ module.exports = {
     this.roomApps[roomId].execute(name, socket, data);
   },
 
-  leaveApp: function(roomId){
-    console.log("room " + roomId + " leaving app");
+  quitApp: function(roomId){
+    console.log("room " + roomId + " quitting app");
     this.roomApps[roomId] = undefined;
   }
 

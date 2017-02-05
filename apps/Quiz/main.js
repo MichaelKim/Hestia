@@ -1,10 +1,29 @@
-app.document.getElementById("btn").onclick = function(){
-  var msg = app.document.getElementById("input").value;
-  app.emit("send-msg", msg);
+var question = app.document.getElementById("question");
+var reply = app.document.getElementById("reply");
+
+for(var i=0;i<4;i++){
+  initBtn(i);
+}
+function initBtn(i){
+  app.document.getElementById("btn" + (i+1)).onclick = function(){
+    app.emit("answer", i+1);
+  };
+}
+
+app.document.getElementById("ask").onclick = function(){
+  app.emit("ask");
 };
 
-app.on("new-msg", function(msg){
-  var textarea = app.document.getElementById("output");
-  textarea.innerHTML += msg + "\n";
-  textarea.scrollTop = textarea.scrollHeight;
+app.on("question", function(q){
+  reply.innerHTML = "";
+  question.innerHTML = q;
+});
+
+app.on("reply", function(ans){
+  if(ans){
+    reply.innerHTML = "Correct!";
+  }
+  else{
+    reply.innerHTML = "Incorrect!";
+  }
 });

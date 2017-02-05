@@ -87,7 +87,7 @@ io.on("connection", function(socket){
     if(newPlayer.host){ //only host can change app of a room
       roomManager.rooms[newPlayer.room].app = -1;
 
-      appManager.leaveApp(newPlayer.room);
+      appManager.quitApp(newPlayer.room);
 
       var roomPlayers = roomManager.rooms[newPlayer.room].players;
       for(var i=0;i<roomPlayers.length;i++){
