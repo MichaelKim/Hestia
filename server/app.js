@@ -92,7 +92,7 @@ module.exports = {
   },
 
   dataRetrieved: function(roomId, socket, name, data){
-    console.log("appManager.dataRetrieved: " + name + "; " + data + "; " + roomId);
+    //console.log("appManager.dataRetrieved: " + name + "; " + data + "; " + roomId);
 
     this.roomApps[roomId].execute(name, socket, data);
   },
