@@ -10,8 +10,7 @@ module.exports = {
     var newRoom = {
       id: roomid, //is this necessary
       host: host.id,
-      players: [host],
-      app: -1
+      players: [host]
     };
     this.rooms[roomid] = newRoom;
 
@@ -29,6 +28,11 @@ module.exports = {
 
   // "player" leaves room they're currently in
   leaveRoom: function(player){
+    if(this.rooms[player.room] === undefined){
+      console.log("room " + player.room + " not found");
+      return;
+    }
+
     var roomPlayers = this.rooms[player.room].players; //room the player was in
     for(var i = 0; i < roomPlayers.length; i++){
       if(roomPlayers[i].id === player.id){ //found the player

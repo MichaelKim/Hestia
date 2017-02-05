@@ -9,7 +9,12 @@ function serverApp(app){
 
   app.on("button-press", function(socket, num){
     console.log("recieved: " + num);
-    app.emitAll("newCount", parseInt(num)+1);
+    if(isNaN(num)){
+      app.emitAll("newCount", "that's not a number!");
+    }
+    else{
+      app.emitAll("newCount", parseInt(num)+1);
+    }
   });
 
   return this;

@@ -3,37 +3,40 @@
 <head>
   <meta charset="utf8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <title>QHacks2017 Project</title>
+  <title>Hestia</title>
   <link rel="stylesheet" href="main.css"/>
 </head>
 <body>
-  <div id="info">
-    <p id="room-info">Room:</p>
-    <p id="host-info">Host: false</p>
-    <p id="app-info">App:</p>
-    <p id="error"></p>
-  </div>
   <div id="center">
     <div id="header-title">
-      <h1 id="title">QHacks2017 Title</h1>
-      <h2 id="subtitle">Description here</h2>
+      <h1 id="title">Hestia</h1>
+      <h2 id="subtitle">Multiplayer Web Apps To Go</h2>
       <div id="btn-row">
         <button id="create-btn">Create Room</button>
         <button id="join-btn">Join Room</button>
       </div>
       <input type="text" id="room-id" placeholder="Room ID">
+      <p id="error"></p>
     </div>
 
     <div id="wrapper">
-      <ul id="app-list">
-      </ul>
-      <input type="text" id="app-id" placeholder="App ID">
-      <button id="select-btn">Select App</button>
+      <h1>Pick an App to Run</h1>
+      <div id="app-list">
+      </div>
+      <!-- <input type="text" id="app-id" placeholder="App ID"><br>
+      <button id="select-btn">Select App</button> -->
     </div>
   </div>
 
   <app-window id="app-box">
   </app-window>
+
+  <div id="info">
+    <p id="room-info">Room: N/A</p>
+    <p id="host-info">Host: N/A</p>
+    <p id="app-info">App: N/A</p>
+    <button id="leave-info">Leave</button>
+  </div>
   <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
   <script type="text/javascript" src="main.js"></script>
 </body>

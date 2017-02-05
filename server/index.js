@@ -75,6 +75,20 @@ io.on("connection", function(socket){
     appManager.dataRetrieved(newPlayer.room, socket, args[0], args.slice(1));
   });
 
+  socket.on("leaveApp", function(){ //leave app, erase everything about app
+    if(newPlayer.host){ //only host can change app of a room
+      appManager.leaveApp(newPlayer.room);
+
+      var roomPlayers = roomManager.rooms[newPlayer.room].players;
+      for(var i=0;i<roomPlayers.length;i++){
+        if(roomPlayers[i].id !== newPlayer.id){ //all but the host (who manually left)
+          sockets[roomPlayers[i].id].emit("leave-app");
+        }
+      }
+    }
+    else socket.emit("leave-room"); //not the host, so leave room
+  });
+
   socket.on('disconnect', function(){
     var newHostId = roomManager.leaveRoom(newPlayer);
     if(newHostId) sockets[newHostId].emit("host-changed", newHostId);

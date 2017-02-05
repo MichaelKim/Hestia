@@ -58,7 +58,7 @@ module.exports = {
         (this.ons[name]).apply(this.ons[name], data);
       }
     };
-    var newApp = new (require("../apps/game1/server.js"))(app); //create new instance of server.js, not singleton
+    var newApp = new (require("." + appList[appId].server))(app); //create new instance of server.js, not singleton
 
     this.roomApps[roomId] = newApp;
 
@@ -79,6 +79,11 @@ module.exports = {
     console.log("appManager.dataRetrieved: " + name + "; " + data + "; " + roomId);
 
     this.roomApps[roomId].execute(name, socket, data);
+  },
+
+  leaveApp: function(roomId){
+    console.log("room " + roomId + " leaving app");
+    this.roomApps[roomId] = undefined;
   }
 
 };

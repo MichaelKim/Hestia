@@ -1,3 +1,3 @@
-# QHacks2017
+# Hestia
 
-QHacks2017 Project Submission
+A web service to make web apps with rooms quick and simple - QHacks2017 Project Submission

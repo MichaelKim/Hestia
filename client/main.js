@@ -1,4 +1,5 @@
 var socket;
+var loaded = false;
 
 /* Start screen */
 var joinBtn, createBtn, roomId;
@@ -8,7 +9,7 @@ var error;
 var appId, selectBtn;
 
 /* Info panel */
-var roomInfo, hostInfo, appInfo;
+var roomInfo, hostInfo, appInfo, leaveInfo;
 
 /* App container */
 var appBox;
@@ -31,7 +32,7 @@ window.onload = function(){
   roomInfo = document.getElementById("room-info");
   hostInfo = document.getElementById("host-info");
   appInfo = document.getElementById("app-info");
-
+  leaveInfo = document.getElementById("leave-info");
   appBox = document.getElementById("app-box");
 
   joinBtn.onclick = function(){
@@ -45,20 +46,38 @@ window.onload = function(){
     startGame("create");
   };
 
-  selectBtn.onclick = function(){
+  /*selectBtn.onclick = function(){
     console.log("select app " + appId.value);
     socket.emit("selectApp", appId.value);
+  };*/
+
+  leaveInfo.onclick = function(){
+    var header = document.getElementById("header-title");
+    var wrapper = document.getElementById("wrapper");
+    if(wrapper.style.display !== "none"){
+      leaveRoom();
+    }
+    else if(header.style.display === "none"){
+      leaveApp();
+      socket.emit("leaveApp");
+    }
   };
 
 
   function startGame(option){
+    if(!loaded){
+      setupSocket();
+      setupAppWindow();
+    }
     if(!socket){
       socket = io();
-      setupSocket();
     }
-
+    else{
+      socket.socket.connect();
+    }
     if(option === "create") socket.emit("startCreate");
     else socket.emit("startJoin", option);
+    loaded = true;
   }
 
   function setupSocket(){
@@ -105,6 +124,14 @@ window.onload = function(){
       console.log("data from server app: " + args);
       appBox.execute(args);
     });
+
+    socket.on("leave-app", function(){
+      leaveApp();
+    });
+
+    socket.on("leave-room", function(){
+      leaveRoom();
+    });
   }
 
   function validId(id){
@@ -113,39 +140,16 @@ window.onload = function(){
 
 };
 
-
-function loadAppsList(appNames){
-  console.log(appNames);
-  var wrapper = document.getElementById("wrapper");
-  var header = document.getElementById("header-title");
-  wrapper.style.display = "block";
-  header.style.display = "none";
-
-  var applist = document.getElementById("app-list");
-
-  for(var i=0;i<appNames.length;i++){
-    var newapp = document.createElement("li");
-    var appname = document.createElement("p");
-    appname.innerHTML = appNames[i];
-    newapp.appendChild(appname);
-    applist.appendChild(newapp);
-  }
-}
-
-function loadApp(data){
-  var wrapper = document.getElementById("wrapper");
-  wrapper.style.display = "none";
-  appBox.style.display = "block";
-
+function setupAppWindow(){
   customElements.define("app-window", class extends HTMLElement{
     constructor(){
       super();
 
       this._ons = []; //{name: "name of call", func: "function that runs"}
+      this._root = appBox.attachShadow({ mode: "open" });
     }
 
     set root(appdata){
-      this._root = appBox.attachShadow({ mode: "open" });
       var temp = document.createElement("template");
       temp.innerHTML = appdata.html + "<script type='text/javascript'>" +
                       "(function(){" + appdata.js +
@@ -180,11 +184,59 @@ function loadApp(data){
       console.log(args[1]);
     }
   });
+}
 
+
+function loadAppsList(appNames){
+  console.log(appNames);
+  var wrapper = document.getElementById("wrapper");
+  var header = document.getElementById("header-title");
+  wrapper.style.display = "block";
+  header.style.display = "none";
+
+  var applist = document.getElementById("app-list");
+
+  for(var i=0;i<appNames.length;i++){
+    applist.appendChild(createAppButton(appNames[i], i));
+  }
+}
+
+function createAppButton(name, index){
+  var newbtn = document.createElement("button");
+  newbtn.innerHTML = name;
+  newbtn.onclick = function(){
+    console.log("select app " + index);
+    socket.emit("selectApp", index);
+  };
+  return newbtn;
+}
+
+function loadApp(data){
+  var wrapper = document.getElementById("wrapper");
+  wrapper.style.display = "none";
+  appBox.style.display = "block";
   //appBox.socket = socket;
 
   data.js = "var app = document.getElementById('app-box');" +  data.js;
   appBox.root = data;
+}
+
+function leaveApp(){
+  var wrapper = document.getElementById("wrapper");
+  console.log("back to apps");
+  appBox.shadowRoot.innerHTML = "";
+  appBox.style.display = "none";
+  wrapper.style.display = "block";
+}
+
+function leaveRoom(){
+  var header = document.getElementById("header-title");
+  var wrapper = document.getElementById("wrapper");
+  console.log("back to main");
+  wrapper.style.display = "none";
+  header.style.display = "block";
+
+  socket.disconnect();
 }
 
 
