@@ -27,14 +27,14 @@ io.on("connection", function(socket){
   });
 
   socket.on("startJoin", function(roomId){
-    if(newPlayer.room !== -1){ //switching rooms
-      var newHostId = roomManager.leaveRoom(newPlayer);
-      if(newHostId) sockets[newHostId].emit("host-changed", newHostId);
-    }
-
     if(!(roomId in roomManager.rooms)){ //room doesn't exist
       socket.emit("error-msg", "Room does not exist");
       return;
+    }
+
+    if(newPlayer.room !== -1){ //switching rooms
+      var newHostId = roomManager.leaveRoom(newPlayer);
+      if(newHostId) sockets[newHostId].emit("host-changed", newHostId);
     }
 
     roomManager.joinRoom(roomId, newPlayer);
@@ -46,12 +46,11 @@ io.on("connection", function(socket){
     if(!newPlayer.host){
       socket.emit("error-msg", "Only host can change app");
     }
-    else if(!(appId >= 0 && appId < appManager.apps.length)){
+    else if(!(appId >= 0 && appId < appManager.appsNum())){
       socket.emit("error-msg", "Invalid app ID");
     }
     else{
       console.log("room " + newPlayer.room + " selected app " + appId);
-      roomManager.rooms[newPlayer.room].app = appId;
 
       //send to everyone in room about app selection
       var roomPlayers = roomManager.rooms[newPlayer.room].players;
@@ -59,19 +58,21 @@ io.on("connection", function(socket){
         sockets[roomPlayers[i].id].emit("app-changed", appId);
       }
 
-      appManager.getAppFiles(appId, function(appData){
-        socket.emit("app-selected", appData);
+      //sockets of everyone in the room
+      var roomSockets = roomPlayers.map(function(p){ return sockets[p.id]; });
+
+      appManager.selectApp(newPlayer.room, appId, roomSockets, function(appData){
+        //send to all players in the room
+        for(var i=0;i<roomSockets.length;i++){
+          roomSockets[i].emit("app-selected", appData);
+        }
       });
     }
   });
 
   socket.on("dataApp", function(){ //retrieve data sent by app
     var args = Array.prototype.slice.call(arguments);
-    if(args[0] === "button-press"){
-      console.log("app press button");
-      socket.emit("data-app-server", "newCount", Math.floor((Math.random() * 10) + 1));
-    }
-    //appManager.dataRetrieved(args[0], args.slice(1));
+    appManager.dataRetrieved(newPlayer.room, socket, args[0], args.slice(1));
   });
 
   socket.on('disconnect', function(){

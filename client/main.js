@@ -185,8 +185,6 @@ function loadApp(data){
 
   data.js = "var app = document.getElementById('app-box');" +  data.js;
   appBox.root = data;
-
-  appBox.execute(["test"]);
 }
 
 

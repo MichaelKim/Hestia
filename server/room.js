@@ -8,7 +8,7 @@ module.exports = {
     host.room = roomid;
     host.host = true;
     var newRoom = {
-      id: roomid,
+      id: roomid, //is this necessary
       host: host.id,
       players: [host],
       app: -1
@@ -50,7 +50,7 @@ module.exports = {
         }
         player.room = -1;
         player.host = false;
-        
+
         return newHostId;
       }
     }
