@@ -10,7 +10,8 @@ module.exports = {
     var newRoom = {
       id: roomid, //is this necessary
       host: host.id,
-      players: [host]
+      players: [host],
+      app: -1
     };
     this.rooms[roomid] = newRoom;
 

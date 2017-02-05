@@ -69,7 +69,7 @@ window.onload = function(){
       socket = io();
     }
     else{
-      socket.socket.connect();
+      //socket.socket.connect();
     }
     if(!loaded){
       setupSocket();
@@ -90,15 +90,16 @@ window.onload = function(){
       roomInfo.innerHTML = "Room: " + newId;
       hostInfo.innerHTML = "Host: true";
       appInfo.innerHTML = "App: not selected";
+      document.getElementById("waiting").innerHTML = "Pick an App to Run";
       loadAppsList(appNames);
     });
 
-    socket.on("room-joined", function(newId, appNames, appId){
+    socket.on("room-joined", function(newId, appNames){
       console.log("Joined room: " + newId);
       roomInfo.innerHTML = "Room: " + newId;
       hostInfo.innerHTML = "Host: false";
-      if(appId === -1) appInfo.innerHTML = "App: not selected";
-      else appInfo.innerHTML = "App: " + appId;
+      appInfo.innerHTML = "App: not selected";
+      document.getElementById("waiting").innerHTML = "Waiting for Host to Pick";
       loadAppsList(appNames);
     });
 
@@ -231,6 +232,8 @@ function leaveApp(){
   appBox.shadowRoot.innerHTML = "";
   appBox.style.display = "none";
   wrapper.style.display = "block";
+
+  appInfo.innerHTML = "App: not selected";
 }
 
 function leaveRoom(){

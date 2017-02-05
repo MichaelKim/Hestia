@@ -75,6 +75,22 @@ module.exports = {
     });
   },
 
+  joinApp: function(roomId, appId, player, callback){
+    this.roomApps[roomId].sockets.push(player);
+
+    var htmlFile = appList[appId].html;
+    var jsFile = appList[appId].js;
+
+    fs.readFile(htmlFile, "utf8", function(err, htmlData){ //am i doing this async thing right
+      if(err) throw err;
+      fs.readFile(jsFile, "utf8", function(err2, jsData){
+        if(err2) throw err2;
+        console.log({ html: htmlData, js: jsData });
+        callback({ html: htmlData, js: jsData });
+      });
+    });
+  },
+
   dataRetrieved: function(roomId, socket, name, data){
     console.log("appManager.dataRetrieved: " + name + "; " + data + "; " + roomId);
 

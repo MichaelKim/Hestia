@@ -39,7 +39,14 @@ io.on("connection", function(socket){
 
     roomManager.joinRoom(roomId, newPlayer);
     sockets[newPlayer.id] = socket;
-    socket.emit("room-joined", newPlayer.room, appManager.appNames(), roomManager.rooms[newPlayer.room].app);
+    socket.emit("room-joined", newPlayer.room, appManager.appNames());
+    var appId = roomManager.rooms[newPlayer.room].app;
+    if(appId !== -1){
+      socket.emit("app-changed", appId);
+      appManager.joinApp(newPlayer.room, appId, socket, function(appData){
+        socket.emit("app-selected", appData);
+      });
+    }
   });
 
   socket.on("selectApp", function(appId){
@@ -51,6 +58,7 @@ io.on("connection", function(socket){
     }
     else{
       console.log("room " + newPlayer.room + " selected app " + appId);
+      roomManager.rooms[newPlayer.room].app = appId;
 
       //send to everyone in room about app selection
       var roomPlayers = roomManager.rooms[newPlayer.room].players;
@@ -77,6 +85,8 @@ io.on("connection", function(socket){
 
   socket.on("leaveApp", function(){ //leave app, erase everything about app
     if(newPlayer.host){ //only host can change app of a room
+      roomManager.rooms[newPlayer.room].app = -1;
+
       appManager.leaveApp(newPlayer.room);
 
       var roomPlayers = roomManager.rooms[newPlayer.room].players;
