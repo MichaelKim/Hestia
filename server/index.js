@@ -46,7 +46,7 @@ io.on("connection", function(socket){
     if(!newPlayer.host){
       socket.emit("error-msg", "Only host can change app");
     }
-    else if(appId < 0 || appId >= appManager.apps.length){
+    else if(!(appId >= 0 && appId < appManager.apps.length)){
       socket.emit("error-msg", "Invalid app ID");
     }
     else{
@@ -63,6 +63,11 @@ io.on("connection", function(socket){
         socket.emit("app-selected", appData);
       });
     }
+  });
+
+  socket.on("dataApp", function(){ //retrieve data sent by app
+    var args = Array.prototype.slice.call(arguments);
+    appManager.dataRetrieved(args[0], args.slice(1));
   });
 
   socket.on('disconnect', function(){

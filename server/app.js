@@ -3,10 +3,12 @@ var appList = [];
 var files = fs.readdirSync("./apps/"); //i'm sorry
 files.forEach(function (file){
   if(fs.existsSync("./apps/" + file + "/index.html") &&
-     fs.existsSync("./apps/" + file + "/main.js"))
+     fs.existsSync("./apps/" + file + "/main.js") &&
+     fs.existsSync("./apps/" + file + "/server.js"))
      appList.push({ name: file,
                     html: "./apps/" + file + "/index.html",
-                    js: "./apps/" + file + "/main.js"});
+                    js: "./apps/" + file + "/main.js",
+                    server: "./apps/" + file + "/server.js"});
 });
 
 console.log(appList);
@@ -19,7 +21,7 @@ module.exports = {
     return this.apps.map(function(a){ return a.name; });
   },
 
-  getAppFiles: function(appId, callback){
+  getAppFiles: function(appId, callback){ // no need to send server.js
     var htmlFile = this.apps[appId].html;
     var jsFile = this.apps[appId].js;
 
@@ -31,6 +33,10 @@ module.exports = {
         callback({ html: htmlData, js: jsData });
       });
     });
+  },
+
+  dataRetrieved: function(name, data){
+    console.log("appManager.dataRetrieved: " + name + "; " + data);
   }
 
 };

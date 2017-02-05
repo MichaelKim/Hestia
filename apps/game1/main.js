@@ -1,6 +1,5 @@
 alert("hello!");
-appdocument.getElementById("btn").onclick = function(){
+app.document.getElementById("btn").onclick = function(){
   alert("You clicked me!");
 };
-
-alert(document.getElementById("testbtn"));
+app.emit("test", "hello from app");

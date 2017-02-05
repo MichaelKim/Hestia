@@ -92,7 +92,7 @@ window.onload = function(){
       console.log("retrived app: ");
       console.log(data.html);
       console.log(data.js);
-      loadApp(data.html, data.js);
+      loadApp(data); //contains .html and .js
     });
   }
 
@@ -121,17 +121,52 @@ function loadAppsList(appNames){
   }
 }
 
-function loadApp(html, js){
+function loadApp(data){
   var wrapper = document.getElementById("wrapper");
   var appBox = document.getElementById("app-box");
   wrapper.style.display = "none";
   appBox.style.display = "block";
 
-  var root = appBox.createShadowRoot();
-  var temp = document.createElement("template");
-  temp.innerHTML = html + "<script type='text/javascript'>(function(){ var appdocument = document.getElementById('app-box').shadowRoot;" + js + "})();</script>";
-  var c = document.importNode(temp.content, true);
-  root.appendChild(c);
+  customElements.define("app-window", class extends HTMLElement{
+    constructor(){
+      super();
+    }
+
+    set root(appdata){
+      this._root = appBox.attachShadow({ mode: "open" });
+      var temp = document.createElement("template");
+      temp.innerHTML = appdata.html + "<script type='text/javascript'>" +
+                      "(function(){" + appdata.js +
+                      "})();</script>";
+
+      this._root.appendChild(document.importNode(temp.content, true));
+    }
+
+    get document(){
+      return this._root;
+    }
+
+    /*set socket(s){
+      this._socket = s;
+    }
+
+    get socket(){
+      return this._socket;
+    }*/
+
+    emit(){
+      var args = Array.prototype.slice.call(arguments);
+      args.unshift("dataApp");
+      console.log(args);
+      socket.emit.apply(socket, args);
+    }
+  });
+
+  //appBox.socket = socket;
+
+  data.js = "var app = document.getElementById('app-box');" + data.js;
+  appBox.root = data;
+
 }
 
 
