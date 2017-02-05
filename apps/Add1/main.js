@@ -1,12 +1,3 @@
-//alert("hello!");
-app.execute = function(args){
-  console.log(args[0]);
-  (app._ons[args[0]]).apply(app._ons[args[0]], args.slice(1));
-};
-
-
-
-
 app.document.getElementById("btn").onclick = function(){
   var num = app.document.getElementById("input-num").value;
   app.emit("button-press", num);

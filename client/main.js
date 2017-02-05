@@ -65,15 +65,15 @@ window.onload = function(){
 
 
   function startGame(option){
-    if(!loaded){
-      setupSocket();
-      setupAppWindow();
-    }
     if(!socket){
       socket = io();
     }
     else{
       socket.socket.connect();
+    }
+    if(!loaded){
+      setupSocket();
+      setupAppWindow();
     }
     if(option === "create") socket.emit("startCreate");
     else socket.emit("startJoin", option);
@@ -217,7 +217,11 @@ function loadApp(data){
   appBox.style.display = "block";
   //appBox.socket = socket;
 
-  data.js = "var app = document.getElementById('app-box');" +  data.js;
+  data.js = "var app = document.getElementById('app-box');" +
+            "app.execute = function(args){" +
+              "console.log(args[0]);" +
+              "(app._ons[args[0]]).apply(app._ons[args[0]], args.slice(1));" +
+            "};" +  data.js;
   appBox.root = data;
 }
 
