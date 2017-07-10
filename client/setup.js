@@ -1,10 +1,5 @@
 var waiting = document.getElementById("waiting");
-
-/* HTML5 magics */
-HTMLElement.prototype.createShadowRoot =
-    HTMLElement.prototype.createShadowRoot ||
-    HTMLElement.prototype.webkitCreateShadowRoot ||
-    function () {};
+var names = [];
 
 function loadAppsList(appNames) {
     console.log(appNames);
@@ -38,7 +33,6 @@ function loadApp(data) {
     var wrapper = document.getElementById("wrapper");
     wrapper.style.display = "none";
     appBox.style.display = "block";
-    //appBox.socket = socket;
 
     data.js = "var app = document.getElementById('app-box');" +
               "app.execute = function(args){" +
@@ -70,13 +64,17 @@ function setupAppWindow() {
             return this._root;
         }
 
-        /*set socket(s) {
-            this._socket = s;
+        get names() {
+            return names;
         }
 
-        get socket() {
-            return this._socket;
-        }*/
+        joined(name) {
+            console.log('player ' + name + ' joined');
+        }
+
+        left(name) {
+            console.log('player ' + name + ' left');
+        }
 
         emit() {
             var args = Array.prototype.slice.call(arguments);

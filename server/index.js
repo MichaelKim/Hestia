@@ -11,11 +11,12 @@ var sockets = {};
 io.on("connection", function(socket) {
     var newPlayer = {
         id: socket.id,
+        name: "",
         room: -1,
         host: false
     };
 
-    socket.on("startCreate", function() {
+    socket.on("startCreate", function(name) {
         if(newPlayer.room !== -1){ //switching rooms
             var newHostId = roomManager.leaveRoom(newPlayer);
             if(newHostId) {
@@ -23,16 +24,20 @@ io.on("connection", function(socket) {
             }
         }
 
+        newPlayer.name = name;
+
         roomManager.createRoom(newPlayer);
         sockets[newPlayer.id] = socket;
         socket.emit("room-created", newPlayer.room, appManager.appNames());
     });
 
-    socket.on("startJoin", function(roomId) {
+    socket.on("startJoin", function(name, roomId) {
         if(!roomManager.roomExists(roomId)) { //room doesn't exist
             socket.emit("error-msg", "Room does not exist");
             return;
         }
+
+        newPlayer.name = name;
 
         if(newPlayer.room !== -1){ //switching rooms
             var newHostId = roomManager.leaveRoom(newPlayer);
@@ -45,14 +50,21 @@ io.on("connection", function(socket) {
         sockets[newPlayer.id] = socket;
 
         var appId = roomManager.getAppId(newPlayer.room);
-        if(appId !== -1) {
+        if(appId === -1) { //app not selected
+            socket.emit("room-joined", newPlayer.room, appManager.appNames());
+        }
+        else {
             socket.emit("app-changed", appId);
             appManager.joinApp(newPlayer.room, appId, socket, function(appData) {
                 socket.emit("app-selected", appData);
             });
         }
-        else {
-            socket.emit("room-joined", newPlayer.room, appManager.appNames());
+
+        var roomPlayers = roomManager.rooms[newPlayer.room].players;
+        for(var i = 0; i < roomPlayers.length; ++i){
+            if(roomPlayers[i].id !== newPlayer.id) {
+                sockets[roomPlayers[i].id].emit("player-joined", newPlayer.name);
+            }
         }
     });
 
@@ -122,10 +134,20 @@ io.on("connection", function(socket) {
     });
 
     socket.on('disconnect', function(){
+        if(newPlayer.room !== -1) {
+            var roomPlayers = roomManager.rooms[newPlayer.room].players;
+            for(var i = 0; i < roomPlayers.length; ++i){
+                if(roomPlayers[i].id !== newPlayer.id) {
+                    sockets[roomPlayers[i].id].emit("player-left", newPlayer.name);
+                }
+            }
+        }
+
         var newHostId = roomManager.leaveRoom(newPlayer);
         if(newHostId) {
             sockets[newHostId].emit("host-changed"); //new host
         }
+
         console.log("Player dc: " + newPlayer.id);
     });
 });

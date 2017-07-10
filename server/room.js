@@ -65,7 +65,9 @@ module.exports = {
 
     generateRoomId: function(){
         var id = Math.floor(Math.random() * 10000);
-        while(id in this.rooms) id = Math.floor(Math.random() * 10000);
+        while(id in this.rooms) {
+            id = Math.floor(Math.random() * 10000);
+        }
         return id;
     },
 

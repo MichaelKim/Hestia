@@ -5,12 +5,13 @@ window.onload = function () {
     var joinBtn = document.getElementById("join-btn"); //join room button
     var createBtn = document.getElementById("create-btn"); //create room button
     var roomId = document.getElementById("room-id"); //room id (when creating room)
+    var name = document.getElementById("name"); //player name
 
     var leaveInfo = document.getElementById("leave-info");
 
     joinBtn.onclick = function () {
         if(validId(roomId.value)) {
-            startGame(roomId.value);
+            startGame(roomId.value, name.value);
         }
         else {
             showError("Invalid room ID");
@@ -18,7 +19,7 @@ window.onload = function () {
     };
 
     createBtn.onclick = function() {
-        startGame("create");
+        startGame("create", name.value);
     };
 
     leaveInfo.onclick = function() {
@@ -26,7 +27,7 @@ window.onload = function () {
     };
 };
 
-function startGame(option) {
+function startGame(option, name) {
     socket = io();
     setupSocket(socket);
     if(!loaded) {
@@ -35,10 +36,10 @@ function startGame(option) {
     loaded = true;
 
     if(option === "create") {
-        socket.emit("startCreate");
+        socket.emit("startCreate", name);
     }
     else {
-        socket.emit("startJoin", option);
+        socket.emit("startJoin", name, option); //player name, room id
     }
 }
 

@@ -27,6 +27,21 @@ function setupSocket(socket){
         waiting.innerHTML = "Loading app";
     });
 
+    socket.on("player-joined", function(name) {
+        names.push(name);
+        console.log(names);
+        appBox.joined(name);
+    });
+
+    socket.on("player-left", function(name) {
+        var index = names.indexOf(name);
+        if(index > -1) {
+            names.splice(index, 1);
+        }
+        appBox.left(name);
+        console.log(names);
+    });
+
     socket.on("host-changed", function() {
         console.log("changed to host");
         setHost(true);

@@ -16,8 +16,20 @@ function submit(){
   app.emit("send-msg", msg);
 }
 
-app.on("new-msg", function(msg){
+function addMessage(msg) {
   var textarea = app.document.getElementById("output");
   textarea.innerHTML += msg + "\n";
   textarea.scrollTop = textarea.scrollHeight;
+}
+
+app.on("new-msg", function(msg){
+  addMessage(msg);
 });
+
+app.joined = function(name) {
+  addMessage('Welcome ' + name + '!');
+}
+
+app.left = function(name) {
+  addMessage('Goodbye ' + name + '!');
+}
