@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <title>Hestia</title>
-  <link rel="stylesheet" href="main.css"/>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Hestia</title>
+    <link rel="stylesheet" href="main.css"/>
 </head>
 <body>
-  <div id="center">
-    <div id="header-title">
-      <h1 id="title">Hestia</h1>
-      <h2 id="subtitle">Multiplayer Web Apps To Go</h2>
-      <div id="btn-row">
-        <button id="create-btn">Create Room</button>
-        <button id="join-btn">Join Room</button>
-      </div>
-      <input type="text" id="room-id" placeholder="Room ID">
+    <div id="center">
+        <div id="header-title">
+            <h1 id="title">Hestia</h1>
+            <h2 id="subtitle">Multiplayer Web Apps To Go</h2>
+            <div id="btn-row">
+                <button id="create-btn">Create Room</button>
+                <button id="join-btn">Join Room</button>
+            </div>
+            <input type="text" id="room-id" placeholder="Room ID">
+        </div>
+
+        <div id="wrapper">
+            <h1 id="waiting">Pick an App to Run</h1>
+            <div id="app-list"></div>
+        </div>
     </div>
 
-    <div id="wrapper">
-      <h1 id="waiting">Pick an App to Run</h1>
-      <div id="app-list">
-      </div>
-      <!-- <input type="text" id="app-id" placeholder="App ID"><br>
-      <button id="select-btn">Select App</button> -->
+    <app-window id="app-box"></app-window>
+
+    <div id="info">
+        <p id="room-info">Room: N/A</p>
+        <p id="host-info">Host: N/A</p>
+        <p id="app-info">App: N/A</p>
+        <button id="leave-info">Leave</button>
+        <p id="error"></p>
     </div>
-  </div>
 
-  <app-window id="app-box">
-  </app-window>
-
-  <div id="info">
-    <p id="room-info">Room: N/A</p>
-    <p id="host-info">Host: N/A</p>
-    <p id="app-info">App: N/A</p>
-    <button id="leave-info">Leave</button>
-    <p id="error"></p>
-  </div>
-  <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-  <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script type="text/javascript" src="info.js"></script>
+    <script type="text/javascript" src="setup.js"></script>
+    <script type="text/javascript" src="socket.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 </body>
 </html>

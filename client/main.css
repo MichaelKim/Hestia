@@ -1,110 +1,110 @@
-html, body{
-  background-color: #D9424A;
-  margin: 0;
-  padding: 0;
-  color: #ffffff;
-  font-family: "Lato", sans-serif;
+html, body {
+    background-color: #D9424A;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+    font-family: "Lato", sans-serif;
 }
 
-canvas{
-  position: absolute !important;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
+canvas {
+    position: absolute !important;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
-#center{
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
+#center {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
-#header-title{
-  width: 50%;
-  margin: 0 auto;
-  text-align: center;
+#header-title {
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
 }
 
-#btn-row{
-  margin: 10px 0;
+#btn-row {
+    margin: 10px 0;
 }
 
-button{
-  width: 200px;
-  height: 50px;
-  font-size: 1em;
-  background-color: #F4A531;
-  box-shadow: 0px 5px 0px #c17b1e;
-  border: 0;
-  border-radius: 5px;
+button {
+    width: 200px;
+    height: 50px;
+    font-size: 1em;
+    background-color: #F4A531;
+    box-shadow: 0px 5px 0px #c17b1e;
+    border: 0;
+    border-radius: 5px;
 }
 
-button:hover{
-  box-shadow: 0px 3px 0px #c17b1e;
-  transform: translate(0px, 2px);
+button:hover {
+    box-shadow: 0px 3px 0px #c17b1e;
+    transform: translate(0px, 2px);
 }
 
-#info{
-  position: fixed;
-  top: 0;
-  right: 0;
-  padding: 10px;
-  background-color: #aaa;
-  border: 5px solid black;
+#info {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background-color: #aaa;
+    border: 5px solid black;
 }
 
-#room-info, #host-info, #app-info, #leave-info{
-  display: inline;
-  color: black;
-  padding: 5px;
-  background-color: white;
-  border-radius: 5px;
+#room-info, #host-info, #app-info, #leave-info {
+    display: inline;
+    color: black;
+    padding: 5px;
+    background-color: white;
+    border-radius: 5px;
 }
 
-#leave-info{
-  width: auto;
-  height: auto;
+#leave-info {
+    width: auto;
+    height: auto;
 }
 
-input{
-  width: 200px;
-  height: 50px;
-  font-size: 1em;
-  text-align: center;
-  border: 3px solid #ddd;
+input {
+    width: 200px;
+    height: 50px;
+    font-size: 1em;
+    text-align: center;
+    border: 3px solid #ddd;
 }
 
-#wrapper{
-  display: none;
-  margin: 0 auto;
-  text-align: center;
+#wrapper {
+    display: none;
+    margin: 0 auto;
+    text-align: center;
 }
 
-#app-list{
-  margin: 10px;
+#app-list {
+    margin: 10px;
 }
 
-#app-list > button{
-  margin: 5px;
+#app-list > button {
+    margin: 5px;
 }
 
-#app-id{
-  margin: 5px;
+#app-id {
+    margin: 5px;
 }
 
-#app-box{
-  display: none;
-  background-color: white;
-  color: black;
-  font-family: serif;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
+#app-box {
+    display: none;
+    background-color: white;
+    color: black;
+    font-family: serif;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
 }

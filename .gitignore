@@ -1,2 +1,4 @@
 node_modules
 Architecture.md
+.DS_Store
+npm-debug.log
