@@ -30,7 +30,7 @@ function setupSocket(socket){
     socket.on("player-joined", function(name) {
         names.push(name);
         console.log(names);
-        appBox.joined(name);
+        appBox.contentWindow.app._joined(name);
     });
 
     socket.on("player-left", function(name) {
@@ -38,7 +38,7 @@ function setupSocket(socket){
         if(index > -1) {
             names.splice(index, 1);
         }
-        appBox.left(name);
+        appBox.contentWindow.app._left(name);
         console.log(names);
     });
 
@@ -57,11 +57,12 @@ function setupSocket(socket){
     socket.on("data-app-server", function() {
         var args = Array.prototype.slice.call(arguments);
         console.log("data from server app: " + args);
-        appBox.execute(args);
+        appBox.contentWindow.app.execute(args[0], args.slice(1));
     });
 
     socket.on("leave-app", function(appNames) {
         loadAppsList(appNames);
+        waiting.innerHTML = "Pick an App to Run";
         leaveApp();
     });
 

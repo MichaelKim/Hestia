@@ -1,6 +1,45 @@
 var waiting = document.getElementById("waiting");
 var names = [];
 
+var appHeader = 'var app = {\
+    _ons: [],\
+    _names: [],\
+    _joined: function(name) {\
+        this._names.push(name);\
+        this.joined(name);\
+    },\
+    _left: function(name) {\
+        var index = this._names.indexOf(name);\
+        if(index > -1) {\
+            this._names.splice(index, 1);\
+        }\
+        this.left(name);\
+    },\
+\
+    on: function(eventName, callback) {\
+        this._ons[eventName] = callback;\
+    },\
+    emit: function() {\
+        window.parent.postMessage({\
+            type: "emit",\
+            args: Array.prototype.slice.call(arguments)\
+        }, "*");\
+    },\
+    execute: function(eventName, args) {\
+        console.log(eventName, args);\
+        app._ons[eventName].apply(this, args);\
+    },\
+    names: function() {\
+        return this._names;\
+    },\
+    joined: function(name) {\
+        console.log("player " + name + " joined");\
+    },\
+    left: function(name) {\
+        console.log("player " + name + " left");\
+    }\
+};';
+
 function loadAppsList(appNames) {
     console.log(appNames);
     var wrapper = document.getElementById("wrapper");
@@ -34,60 +73,28 @@ function loadApp(data) {
     wrapper.style.display = "none";
     appBox.style.display = "block";
 
-    data.js = "var app = document.getElementById('app-box');" +
-              "app.execute = function(args){" +
-              "console.log(args[0]);" +
-              "(app._ons[args[0]]).apply(app._ons[args[0]], args.slice(1));" +
-              "};" +  data.js;
-    appBox.root = data;
+    var iframe = appBox.contentWindow || ( appBox.contentDocument.document || appBox.contentDocument);
+
+    iframe.document.open();
+    iframe.document.write(data.html);
+    iframe.document.close();
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.text = appHeader + data.js;
+
+    appBox.contentWindow.document.body.appendChild(script);
 }
 
 function setupAppWindow() {
-    customElements.define("app-window", class extends HTMLElement {
-        constructor() {
-            super();
-
-            this._ons = []; //{name: "name of call", func: "function that runs"}
-            this._root = appBox.attachShadow({ mode: "open" });
-        }
-
-        set root(appdata) {
-            var temp = document.createElement("template");
-            temp.innerHTML = appdata.html + "<script type='text/javascript'>" +
-                             "(function(){" + appdata.js +
-                             "})();</script>";
-
-            this._root.appendChild(document.importNode(temp.content, true));
-        }
-
-        get document(){
-            return this._root;
-        }
-
-        get names() {
-            return names;
-        }
-
-        joined(name) {
-            console.log('player ' + name + ' joined');
-        }
-
-        left(name) {
-            console.log('player ' + name + ' left');
-        }
-
-        emit() {
-            var args = Array.prototype.slice.call(arguments);
+    window.addEventListener("message", function(event) {
+        console.log(event.origin);
+        console.log(event.data);
+        if(event.data.type === 'emit') {
+            var args = event.data.args;
             args.unshift("dataApp");
             console.log(args);
             socket.emit.apply(socket, args);
         }
-
-        on() {
-            var args = Array.prototype.slice.call(arguments);
-            this._ons[args[0]] = args[1];
-            console.log("Add on: " + args[0]);
-            console.log(args[1]);
-        }
-    });
+    }, false);
 }

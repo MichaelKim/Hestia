@@ -22,18 +22,3 @@ function serverApp(app){
 }
 
 module.exports = serverApp;
-
-/*
-
-to await a message from a client,
-  app.on( NAME, function( SOCKET, [...args] ){ ... });
-where SOCKET is the socket of the client who sent the message
-
-to send a message to a client socket,
-  app.emit( SOCKET, NAME, [...args] );
-
-to send a message to all clients in the room,
-  app.emitAll( NAME, [...args] );
-note that there is no socket mentioned, unlike the single client message
-
-*/

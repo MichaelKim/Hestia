@@ -1,4 +1,4 @@
-var can = app.document.getElementById("can");
+var can = document.getElementById("can");
 var ctx = can.getContext("2d");
 ctx.clearRect(0, 0, can.width, can.height);
 ctx.fillStyle = "black";

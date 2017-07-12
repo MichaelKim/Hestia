@@ -1,8 +1,8 @@
-app.document.getElementById("btn").onclick = function(){
+document.getElementById("btn").onclick = function(){
   submit();
 };
 
-app.document.getElementById("input").onkeypress = function(e){
+document.getElementById("input").onkeypress = function(e){
   if(!e) e = window.event;
   var keyCode = e.keyCode || e.which;
   if(keyCode === 13){
@@ -12,12 +12,12 @@ app.document.getElementById("input").onkeypress = function(e){
 };
 
 function submit(){
-  var msg = app.document.getElementById("input").value;
+  var msg = document.getElementById("input").value;
   app.emit("send-msg", msg);
 }
 
 function addMessage(msg) {
-  var textarea = app.document.getElementById("output");
+  var textarea = document.getElementById("output");
   textarea.innerHTML += msg + "\n";
   textarea.scrollTop = textarea.scrollHeight;
 }

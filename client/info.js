@@ -36,7 +36,7 @@ function showError(message){
 
 function leaveApp() {
     console.log("Back to apps");
-    appBox.shadowRoot.innerHTML = "";
+    appBox.innerHTML = "";
     appBox.style.display = "none";
     wrapper.style.display = "block";
     header.style.display = "none";
@@ -46,7 +46,7 @@ function leaveApp() {
 
 function leaveRoom(){
     console.log("Back to main");
-    appBox.shadowRoot.innerHTML = "";
+    appBox.innerHTML = "";
     appBox.style.display = "none";
     wrapper.style.display = "none";
     header.style.display = "block";
