@@ -11,6 +11,8 @@ files.forEach(function (file){
             server: "./apps/" + file + "/server.js"});
     }
 });
+console.log(files);
+var appHeader = fs.readFileSync("./apps/appHeader.js", "utf8");
 
 console.log(appList);
 
@@ -30,7 +32,7 @@ module.exports = {
 
     selectApp: function(roomId, appId, players, callback){
         var app = {
-            sockets: players,
+            players: players, //{ name: NAME, socket: SOCKET, role: ROLE }
 
             ons: [],
 
@@ -49,8 +51,8 @@ module.exports = {
             emitAll: function(){
                 var args = Array.prototype.slice.call(arguments);
                 args.unshift("data-app-server");
-                for(var i=0;i<this.sockets.length;i++){
-                    this.sockets[i].emit.apply(this.sockets[i], args);
+                for(var i = 0; i < this.players.length; i++){
+                    this.players[i].socket.emit.apply(this.players[i].socket, args);
                 }
             },
 
@@ -62,6 +64,7 @@ module.exports = {
         var newApp = new (require("." + appList[appId].server))(app); //create new instance of server.js, not singleton
 
         this.roomApps[roomId] = newApp;
+        console.log(newApp);
 
         var htmlFile = appList[appId].html;
         var jsFile = appList[appId].js;
@@ -71,13 +74,13 @@ module.exports = {
             fs.readFile(jsFile, "utf8", function(err2, jsData){
                 if(err2) throw err2;
                 console.log({ html: htmlData, js: jsData });
-                callback({ html: htmlData, js: jsData });
+                callback({ html: htmlData, js: appHeader + jsData });
             });
         });
     },
 
     joinApp: function(roomId, appId, player, callback){
-        this.roomApps[roomId].sockets.push(player);
+        this.roomApps[roomId].players.push(player);
 
         var htmlFile = appList[appId].html;
         var jsFile = appList[appId].js;
@@ -100,7 +103,6 @@ module.exports = {
 
     quitApp: function(roomId){
         console.log("room " + roomId + " quitting app");
-        this.roomApps[roomId] = undefined;
+        delete this.roomApps[roomId];
     }
-
 };

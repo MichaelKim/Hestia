@@ -73,7 +73,7 @@ function loadApp(data) {
     wrapper.style.display = "none";
     appBox.style.display = "block";
 
-    var iframe = appBox.contentWindow || ( appBox.contentDocument.document || appBox.contentDocument);
+    var iframe = appBox.contentWindow || (appBox.contentDocument.document || appBox.contentDocument);
 
     iframe.document.open();
     iframe.document.write(data.html);
@@ -81,9 +81,9 @@ function loadApp(data) {
 
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.text = appHeader + data.js;
+    script.text = data.js;
 
-    appBox.contentWindow.document.body.appendChild(script);
+    iframe.document.body.appendChild(script);
 }
 
 function setupAppWindow() {

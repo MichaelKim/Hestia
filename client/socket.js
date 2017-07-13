@@ -51,12 +51,14 @@ function setupSocket(socket){
         console.log("retrived app: ");
         console.log(data.html);
         console.log(data.js);
+        console.log(data.users);
         loadApp(data); //contains .html and .js
     });
 
     socket.on("data-app-server", function() {
         var args = Array.prototype.slice.call(arguments);
         console.log("data from server app: " + args);
+        // TODO: when app isn't loaded yet, this method fails
         appBox.contentWindow.app.execute(args[0], args.slice(1));
     });
 

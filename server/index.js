@@ -55,7 +55,13 @@ io.on("connection", function(socket) {
         }
         else {
             socket.emit("app-changed", appId);
-            appManager.joinApp(newPlayer.room, appId, socket, function(appData) {
+
+            var updatePlayer = {
+                socket: socket,
+                name: newPlayer.name,
+                host: newPlayer.host
+            };
+            appManager.joinApp(newPlayer.room, appId, updatePlayer, function(appData) {
                 socket.emit("app-selected", appData);
             });
         }
@@ -80,16 +86,22 @@ io.on("connection", function(socket) {
             roomManager.setAppId(newPlayer.room, appId);
 
             //send to everyone in room about app selection
-            var roomSockets = roomManager.rooms[newPlayer.room].players.map(function(p){ return sockets[p.id]; });
-            for(var i = 0; i < roomSockets.length; ++i){
-                roomSockets[i].emit("app-changed", appId);
+            var updatePlayers = [];
+            var roomPlayers = roomManager.rooms[newPlayer.room].players;
+            for(var i = 0; i < roomPlayers.length; ++i){
+                var p = roomPlayers[i];
+                sockets[p.id].emit("app-changed", appId);
+                updatePlayers.push({
+                    socket: sockets[p.id],
+                    name: p.name,
+                    host: p.host
+                });
             }
 
-
-            appManager.selectApp(newPlayer.room, appId, roomSockets, function(appData) {
+            appManager.selectApp(newPlayer.room, appId, updatePlayers, function(appData) {
                 //send to all players in the room
-                for(var i = 0; i < roomSockets.length; ++i) {
-                    roomSockets[i].emit("app-selected", appData);
+                for(var i = 0; i < roomPlayers.length; ++i) {
+                    sockets[roomPlayers[i].id].emit("app-selected", appData);
                 }
             });
         }
