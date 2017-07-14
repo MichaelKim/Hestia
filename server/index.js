@@ -13,18 +13,19 @@ io.on("connection", function(socket) {
         id: socket.id,
         name: "",
         room: -1,
-        host: false
+        role: -1 //-1: not set, 0: host, 1: player, 2: spectator
     };
 
     socket.on("startCreate", function(name) {
         if(newPlayer.room !== -1){ //switching rooms
             var newHostId = roomManager.leaveRoom(newPlayer);
             if(newHostId) {
-                sockets[newHostId].emit("host-changed");
+                sockets[newHostId].emit("role-changed", 0);
             }
         }
 
         newPlayer.name = name;
+        newPlayer.role = 0;
 
         roomManager.createRoom(newPlayer);
         sockets[newPlayer.id] = socket;
@@ -38,11 +39,12 @@ io.on("connection", function(socket) {
         }
 
         newPlayer.name = name;
+        newPlayer.role = 1;
 
         if(newPlayer.room !== -1){ //switching rooms
             var newHostId = roomManager.leaveRoom(newPlayer);
             if(newHostId) {
-                sockets[newHostId].emit("host-changed");
+                sockets[newHostId].emit("role-changed", 0);
             }
         }
 
@@ -50,32 +52,30 @@ io.on("connection", function(socket) {
         sockets[newPlayer.id] = socket;
 
         var appId = roomManager.getAppId(newPlayer.room);
-        if(appId === -1) { //app not selected
-            socket.emit("room-joined", newPlayer.room, appManager.appNames());
-        }
-        else {
+        socket.emit("room-joined", newPlayer.room, appManager.appNames());
+        if(appId !== -1) { //App selected
             socket.emit("app-changed", appId);
 
             var updatePlayer = {
                 socket: socket,
                 name: newPlayer.name,
-                host: newPlayer.host
+                role: newPlayer.role
             };
-            appManager.joinApp(newPlayer.room, appId, updatePlayer, function(appData) {
+            appManager.joinApp(newPlayer.room, appId, newPlayer.id, updatePlayer, function(appData) {
                 socket.emit("app-selected", appData);
             });
-        }
 
-        var roomPlayers = roomManager.rooms[newPlayer.room].players;
-        for(var i = 0; i < roomPlayers.length; ++i){
-            if(roomPlayers[i].id !== newPlayer.id) {
-                sockets[roomPlayers[i].id].emit("player-joined", newPlayer.name);
+            var roomPlayers = roomManager.rooms[newPlayer.room].players;
+            for(var i = 0; i < roomPlayers.length; ++i){
+                if(roomPlayers[i].id !== newPlayer.id) {
+                    sockets[roomPlayers[i].id].emit("player-joined", newPlayer.name);
+                }
             }
         }
     });
 
     socket.on("selectApp", function(appId) {
-        if(!newPlayer.host) {
+        if(newPlayer.role !== 0) {
             socket.emit("error-msg", "Only host can change app");
         }
         else if(appId < 0 || appId >= appManager.appsNum()) {
@@ -86,16 +86,16 @@ io.on("connection", function(socket) {
             roomManager.setAppId(newPlayer.room, appId);
 
             //send to everyone in room about app selection
-            var updatePlayers = [];
+            var updatePlayers = {};
             var roomPlayers = roomManager.rooms[newPlayer.room].players;
             for(var i = 0; i < roomPlayers.length; ++i){
                 var p = roomPlayers[i];
                 sockets[p.id].emit("app-changed", appId);
-                updatePlayers.push({
+                updatePlayers[p.id] = {
                     socket: sockets[p.id],
                     name: p.name,
-                    host: p.host
-                });
+                    role: p.role
+                };
             }
 
             appManager.selectApp(newPlayer.room, appId, updatePlayers, function(appData) {
@@ -113,7 +113,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on("leave", function() {
-        if(newPlayer.host) {
+        if(newPlayer.role === 0) {
             if(roomManager.rooms[newPlayer.room].app === -1) {
                 // host leaves room
                 // leave room
@@ -146,7 +146,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on('disconnect', function(){
-        if(newPlayer.room !== -1) {
+        if(newPlayer.room !== -1 && roomManager.getAppId(newPlayer.room) !== -1) {
             var roomPlayers = roomManager.rooms[newPlayer.room].players;
             for(var i = 0; i < roomPlayers.length; ++i){
                 if(roomPlayers[i].id !== newPlayer.id) {
@@ -157,7 +157,7 @@ io.on("connection", function(socket) {
 
         var newHostId = roomManager.leaveRoom(newPlayer);
         if(newHostId) {
-            sockets[newHostId].emit("host-changed"); //new host
+            sockets[newHostId].emit("role-changed", 0); //new host
         }
 
         console.log("Player dc: " + newPlayer.id);

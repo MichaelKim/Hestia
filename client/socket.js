@@ -6,7 +6,7 @@ function setupSocket(socket){
     socket.on("room-created", function(newId, appNames) {
         console.log("Created room: " + newId);
         setRoom(newId);
-        setHost(true);
+        setRole(0);
         setApp(-1);
         waiting.innerHTML = "Pick an App to Run";
         loadAppsList(appNames);
@@ -15,7 +15,7 @@ function setupSocket(socket){
     socket.on("room-joined", function(newId, appNames) {
         console.log("Joined room: " + newId);
         setRoom(newId);
-        setHost(false);
+        setRole(1);
         setApp(-1);
         waiting.innerHTML = "Waiting for Host to Pick";
         loadAppsList(appNames);
@@ -42,16 +42,15 @@ function setupSocket(socket){
         console.log(names);
     });
 
-    socket.on("host-changed", function() {
-        console.log("changed to host");
-        setHost(true);
-    });
+    socket.on("role-changed", function(role) {
+        console.log("changed role: " + role);
+        setRole(role);
+    })
 
     socket.on("app-selected", function(data) {
         console.log("retrived app: ");
         console.log(data.html);
         console.log(data.js);
-        console.log(data.users);
         loadApp(data); //contains .html and .js
     });
 

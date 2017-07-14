@@ -56,7 +56,7 @@ button:hover {
     border: 5px solid black;
 }
 
-#room-info, #host-info, #app-info, #leave-info {
+#room-info, #role-info, #app-info, #leave-info {
     display: inline;
     color: black;
     padding: 5px;

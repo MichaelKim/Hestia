@@ -6,7 +6,7 @@ module.exports = {
     createRoom: function(host){
         var roomid = this.generateRoomId();
         host.room = roomid;
-        host.host = true;
+        host.role = 0;
         var newRoom = {
             id: roomid, //is this necessary
             host: host.id,
@@ -21,7 +21,7 @@ module.exports = {
     //let player "player" join room with id "room"
     joinRoom: function(roomId, player){
         player.room = roomId;
-        player.host = false;
+        player.role = 1;
         this.rooms[roomId].players.push(player);
 
         console.log("rooms.joinRoom: room " + roomId + " joined; player: " + player.id);
@@ -50,13 +50,13 @@ module.exports = {
                 else if(this.rooms[player.room].host === player.id){ //player leaving was the host, pick a new host
                     console.log("room " + player.room + ", host switched to " + roomPlayers[0].id);
                     this.rooms[player.room].host = roomPlayers[0].id;
-                    roomPlayers[0].host = true;
+                    roomPlayers[0].role = 0;
 
                     newHostId = roomPlayers[0].id;
                 }
 
                 player.room = -1;
-                player.host = false;
+                player.role = -1;
 
                 return newHostId;
             }

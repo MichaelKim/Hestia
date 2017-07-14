@@ -1,6 +1,6 @@
 /* Info panel */
 var roomInfo = document.getElementById("room-info");
-var hostInfo = document.getElementById("host-info");
+var roleInfo = document.getElementById("role-info");
 var appInfo = document.getElementById("app-info");
 
 /* Error message */
@@ -16,8 +16,13 @@ function setRoom(room) {
     roomInfo.innerHTML = "Room: " + room;
 }
 
-function setHost(host) {
-    hostInfo.innerHTML = "Host: " + (host ? "true" : "false");
+function setRole(role) {
+    console.log("set role: " + role);
+    var roleStr = "N/A";
+    if(role === 0) roleStr = "Host";
+    else if(role === 1) roleStr = "Player";
+    else if(role === 2) roleStr = "Spectator";
+    roleInfo.innerHTML = "Role: " + roleStr;
 }
 
 function setApp(app) {
@@ -52,6 +57,6 @@ function leaveRoom(){
     header.style.display = "block";
 
     setApp(-1);
-    setHost(false);
+    setRole(-1);
     setRoom("N/A");
 }

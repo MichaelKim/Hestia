@@ -34,12 +34,12 @@ app.left = function(name) {
     addMessage('Goodbye ' + name + '!');
 }
 
-app.emit("onload");
-app.on("connected", function(names, messages) {
+app.onload = function(messages) {
+    var names = app.names();
     for(var i = 0; i < names.length; ++i) {
         addMessage("Hello " + names[i]);
     }
     for(var i = 0; i < messages.length; ++i) {
         addMessage(messages[i]);
     }
-});
+};

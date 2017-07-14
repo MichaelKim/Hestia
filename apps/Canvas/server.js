@@ -1,6 +1,6 @@
 function serverApp(app){
 
-  this.sockets = app.sockets;
+  this.players = app.players;
   this.ons = app.ons;
   this.on = app.on;
   this.emit = app.emit;

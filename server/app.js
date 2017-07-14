@@ -32,7 +32,7 @@ module.exports = {
 
     selectApp: function(roomId, appId, players, callback){
         var app = {
-            players: players, //{ name: NAME, socket: SOCKET, role: ROLE }
+            players: players, //[ID: { name: NAME, socket: SOCKET, role: ROLE }]
 
             ons: [],
 
@@ -51,20 +51,31 @@ module.exports = {
             emitAll: function(){
                 var args = Array.prototype.slice.call(arguments);
                 args.unshift("data-app-server");
-                for(var i = 0; i < this.players.length; i++){
-                    this.players[i].socket.emit.apply(this.players[i].socket, args);
+                for(var id in players) {
+                    var socket = this.players[id].socket;
+                    socket.emit.apply(socket, args);
                 }
             },
 
             execute: function(name, socket, data){
                 data.unshift(socket);
                 (this.ons[name]).apply(this.ons[name], data);
-            }
+            },
+
+            onload: function() { return []; }
         };
+        app.on("_onload", function(socket) {
+            var names = [];
+            for(var id in app.players) {
+                names.push(app.players[id].name);
+            }
+            var data = app.onload();
+            app.emit(socket, "_connected", names, data);
+        })
+
         var newApp = new (require("." + appList[appId].server))(app); //create new instance of server.js, not singleton
 
         this.roomApps[roomId] = newApp;
-        console.log(newApp);
 
         var htmlFile = appList[appId].html;
         var jsFile = appList[appId].js;
@@ -79,8 +90,8 @@ module.exports = {
         });
     },
 
-    joinApp: function(roomId, appId, player, callback){
-        this.roomApps[roomId].players.push(player);
+    joinApp: function(roomId, appId, socketID, player, callback){
+        this.roomApps[roomId].players[socketID] = player;
 
         var htmlFile = appList[appId].html;
         var jsFile = appList[appId].js;
@@ -90,7 +101,7 @@ module.exports = {
             fs.readFile(jsFile, "utf8", function(err2, jsData){
                 if(err2) throw err2;
                 console.log({ html: htmlData, js: jsData });
-                callback({ html: htmlData, js: jsData });
+                callback({ html: htmlData, js: appHeader + jsData });
             });
         });
     },

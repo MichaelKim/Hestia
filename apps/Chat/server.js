@@ -1,4 +1,4 @@
-module.exports = function (app){
+function serverApp(app){
 
     this.players = app.players;
     this.ons = app.ons;
@@ -6,18 +6,25 @@ module.exports = function (app){
     this.emit = app.emit;
     this.emitAll = app.emitAll;
     this.execute = app.execute;
+    this.onload = app.onload;
 
     var messages = [];
 
-    app.on("onload", function(socket) {
-        var names = app.players.map(function(p) { return p.name; });
-        app.emit(socket, "connected", names, messages);
+    app.on("start", function(socket) {
+        app.emit(socket, "messages", messages);
     });
 
     app.on("send-msg", function(socket, msg){
         messages.push(msg);
-        app.emitAll("new-msg", msg);
+        var p = app.players[socket.id];
+        app.emitAll("new-msg", p.name + ", " + p.role + ": " + msg);
     });
+
+    app.onload = function() {
+        return messages;
+    }
 
     return this;
 };
+
+module.exports = serverApp;

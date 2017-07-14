@@ -3,14 +3,16 @@ var app = {
     _names: [],
     _joined: function(name) {
         this._names.push(name);
+        console.log("player " + name + " joined");
         this.joined(name);
     },
     _left: function(name) {
         var index = this._names.indexOf(name);
         if(index > -1) {
             this._names.splice(index, 1);
+            console.log("player " + name + " left");
+            this.left(name);
         }
-        this.left(name);
     },
 
     on: function(eventName, callback) {
@@ -29,10 +31,12 @@ var app = {
     names: function() {
         return this._names;
     },
-    joined: function(name) {
-        console.log("player " + name + " joined");
-    },
-    left: function(name) {
-        console.log("player " + name + " left");
-    }
+    joined: function() {},
+    left: function() {},
+    onload: function() {}
 };
+app.emit("_onload");
+app.on("_connected", function(names, data) {
+    app._names = names;
+    app.onload(data);
+});
