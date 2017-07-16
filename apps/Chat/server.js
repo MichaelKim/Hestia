@@ -7,6 +7,7 @@ function serverApp(app){
     this.emitAll = app.emitAll;
     this.execute = app.execute;
     this.onload = app.onload;
+    this.connect = app.connect;
 
     var messages = [];
 
@@ -20,7 +21,7 @@ function serverApp(app){
         app.emitAll("new-msg", p.name + ", " + p.role + ": " + msg);
     });
 
-    app.onload = function() {
+    app.connect = function() {
         return messages;
     }
 

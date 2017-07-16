@@ -1,3 +1,21 @@
+app.joined = function(name) {
+    addMessage('Welcome ' + name + '!');
+}
+
+app.left = function(name) {
+    addMessage('Goodbye ' + name + '!');
+}
+
+app.onload = function(messages) {
+    var names = app.names();
+    for(var i = 0; i < names.length; ++i) {
+        addMessage("Hello " + names[i]);
+    }
+    for(var i = 0; i < messages.length; ++i) {
+        addMessage(messages[i]);
+    }
+};
+
 document.getElementById("btn").onclick = function(){
     submit();
 };
@@ -25,21 +43,3 @@ function addMessage(msg) {
 app.on("new-msg", function(msg){
     addMessage(msg);
 });
-
-app.joined = function(name) {
-    addMessage('Welcome ' + name + '!');
-}
-
-app.left = function(name) {
-    addMessage('Goodbye ' + name + '!');
-}
-
-app.onload = function(messages) {
-    var names = app.names();
-    for(var i = 0; i < names.length; ++i) {
-        addMessage("Hello " + names[i]);
-    }
-    for(var i = 0; i < messages.length; ++i) {
-        addMessage(messages[i]);
-    }
-};

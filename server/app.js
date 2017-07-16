@@ -62,19 +62,23 @@ module.exports = {
                 (this.ons[name]).apply(this.ons[name], data);
             },
 
-            onload: function() { return []; }
+            onload: function() {},
+
+            connect: function() {
+                return [];
+            }
         };
         app.on("_onload", function(socket) {
             var names = [];
             for(var id in app.players) {
                 names.push(app.players[id].name);
             }
-            var data = app.onload();
+            var data = app.connect();
             app.emit(socket, "_connected", names, data);
-        })
+        });
 
         var newApp = new (require("." + appList[appId].server))(app); //create new instance of server.js, not singleton
-
+        newApp.onload();
         this.roomApps[roomId] = newApp;
 
         var htmlFile = appList[appId].html;
@@ -112,7 +116,13 @@ module.exports = {
         this.roomApps[roomId].execute(name, socket, data);
     },
 
-    quitApp: function(roomId){
+    leaveApp: function(roomId) { //player leaves app
+        // remove player from app.players
+        // this.roomApps[roomId].players
+        // call some method in app like app.joined / app.left
+    },
+
+    quitApp: function(roomId){ //host leaves app
         console.log("room " + roomId + " quitting app");
         delete this.roomApps[roomId];
     }
