@@ -134,6 +134,10 @@ io.on("connection", function(socket) {
         }
         else {
             // leave room
+            if(roomManager.rooms[newPlayer.room].app !== -1) {
+                // leave app
+                appManager.leaveApp(newPlayer.room, newPlayer.id);
+            }
             console.log("Player exit: " + newPlayer.id);
             socket.emit("leave-room");
             socket.disconnect(0);

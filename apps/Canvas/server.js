@@ -1,14 +1,5 @@
 function serverApp(app){
 
-    this.players = app.players;
-    this.ons = app.ons;
-    this.on = app.on;
-    this.emit = app.emit;
-    this.emitAll = app.emitAll;
-    this.execute = app.execute;
-    this.onload = app.onload;
-    this.connect = app.connect;
-
     app.onload = function() {
         var styles = {};
         for(var id in app.players) {
@@ -21,7 +12,7 @@ function serverApp(app){
         app.emitAll("draw", styles[socket.id], prev, curr);
     });
 
-    return this;
+    return app;
 
 }
 

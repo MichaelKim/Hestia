@@ -62,6 +62,14 @@ module.exports = {
                 (this.ons[name]).apply(this.ons[name], data);
             },
 
+            joined: function(id, name, role) {
+                console.log(id + ", " + name + " joined, role: " + role);
+            },
+
+            left: function(id, name, role) {
+                console.log(id + ", " + name + " left, role: " + role);
+            },
+
             onload: function() {},
 
             connect: function() {
@@ -108,6 +116,8 @@ module.exports = {
                 callback({ html: htmlData, js: appHeader + jsData });
             });
         });
+
+        this.roomApps[roomId].joined(socketID, player.name, player.role);
     },
 
     dataRetrieved: function(roomId, socket, name, data){
@@ -116,7 +126,10 @@ module.exports = {
         this.roomApps[roomId].execute(name, socket, data);
     },
 
-    leaveApp: function(roomId) { //player leaves app
+    leaveApp: function(roomId, socketId) { //player leaves app
+        var player = this.roomApps[roomId].players[socketId];
+        delete this.roomApps[roomId].players[socketId];
+        this.roomApps[roomId].left(socketId, player.name, player.role);
         // remove player from app.players
         // this.roomApps[roomId].players
         // call some method in app like app.joined / app.left

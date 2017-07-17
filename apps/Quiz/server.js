@@ -1,14 +1,5 @@
 function serverApp(app){
 
-    this.players = app.players;
-    this.ons = app.ons;
-    this.on = app.on;
-    this.emit = app.emit;
-    this.emitAll = app.emitAll;
-    this.execute = app.execute;
-    this.onload = app.onload;
-    this.connect = app.connect;
-
     var qa = [
         ["What is the fourth letter of the alphabet?\n1: A\n 2: B\n 3: C\n 4: D", 4],
         ["Water Water Water\n1: what?\n2: loo loo loo\n3: hail feridun\n4: thankmrgoose", 2],
@@ -29,7 +20,7 @@ function serverApp(app){
         app.emit(socket, "reply", ans === qa[qindex][1]);
     });
 
-    return this;
+    return app;
 }
 
 module.exports = serverApp;

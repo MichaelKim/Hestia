@@ -1,14 +1,5 @@
 function serverApp(app){
 
-    this.players = app.players;
-    this.ons = app.ons;
-    this.on = app.on;
-    this.emit = app.emit;
-    this.emitAll = app.emitAll;
-    this.execute = app.execute;
-    this.onload = app.onload;
-    this.connect = app.connect;
-
     app.on("button-press", function(socket, num){
         console.log("recieved: " + num);
         if(isNaN(num)){
@@ -19,7 +10,7 @@ function serverApp(app){
         }
     });
 
-    return this;
+    return app;
 }
 
 module.exports = serverApp;
