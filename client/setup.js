@@ -29,41 +29,48 @@ function createAppButton(name, index) {
     return newbtn;
 }
 
-function loadApp(data) {
+function loadApp(appName) {
     var wrapper = document.getElementById("wrapper");
     wrapper.style.display = "none";
     appBox.style.display = "block";
+    appBox.src = "https://hestia-apps.herokuapp.com/" + appName;
+}
 
-    var iframe = appBox.contentWindow || (appBox.contentDocument.document || appBox.contentDocument);
+function executeApp(eventName, args) {
+    console.log('EXECUTE');
+    console.log(args);
+    appBox.contentWindow.postMessage({
+        type: "on",
+        eventName: eventName,
+        args: args
+    }, "*");
+}
 
-    iframe.document.open();
-    iframe.document.write(data.html);
-    iframe.document.close();
+function joinedApp(name) {
+    appBox.contentWindow.postMessage({
+        type: "joined",
+        args: name
+    }, "*");
+}
 
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.text = data.js;
-
-    var jquery = document.createElement("script");
-    jquery.type = "text/javascript";
-    jquery.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-    jquery.onload = function() {
-        iframe.document.body.appendChild(script);
-    };
-
-    iframe.document.body.appendChild(jquery);
-    console.log(jquery);
+function leftApp(name) {
+    appBox.contentWindow.postMessage({
+        type: "left",
+        args: name
+    }, "*");
 }
 
 function setupAppWindow() {
     window.addEventListener("message", function(event) {
-        console.log(event.origin);
-        console.log(event.data);
+        if(event.origin.indexOf('https://hestia-apps.herokuapp.com') === -1) {
+            return;
+        }
+
         if(event.data.type === 'emit') {
+            var eventName = event.data.eventName;
             var args = event.data.args;
-            args.unshift("dataApp");
-            console.log(args);
-            socket.emit.apply(socket, args);
+            console.log(eventName, args)
+            socket.emit("dataApp", eventName, args);
         }
     }, false);
 }

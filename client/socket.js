@@ -21,16 +21,17 @@ function setupSocket(socket){
         loadAppsList(appNames);
     });
 
-    socket.on("app-changed", function(appId) {
+    socket.on("app-changed", function(appId, appName) {
         console.log("app changed to " + appId);
         setApp(appId);
+        loadApp(appName);
         waiting.innerHTML = "Loading app";
     });
 
     socket.on("player-joined", function(name) {
         names.push(name);
         console.log(names);
-        appBox.contentWindow.app._joined(name);
+        joinedApp(name);
     });
 
     socket.on("player-left", function(name) {
@@ -38,27 +39,17 @@ function setupSocket(socket){
         if(index > -1) {
             names.splice(index, 1);
         }
-        appBox.contentWindow.app._left(name);
-        console.log(names);
+        leftApp(name);
     });
 
     socket.on("role-changed", function(role) {
         console.log("changed role: " + role);
         setRole(role);
-    })
-
-    socket.on("app-selected", function(data) {
-        console.log("retrived app: ");
-        console.log(data.html);
-        console.log(data.js);
-        loadApp(data); //contains .html and .js
     });
 
-    socket.on("data-app-server", function() {
-        var args = Array.prototype.slice.call(arguments);
-        console.log("data from server app: " + args);
-        // TODO: when app isn't loaded yet, this method fails
-        appBox.contentWindow.app.execute(args[0], args.slice(1));
+    socket.on("data-app-server", function(eventName, args) {
+        console.log("data from server app: " + eventName, args);
+        executeApp(eventName, args);
     });
 
     socket.on("leave-app", function(appNames) {

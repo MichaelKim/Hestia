@@ -8,6 +8,12 @@ var appManager = require("./app.js");
 
 var sockets = {};
 
+console.log(appManager);
+appManager.send = function(socketId, eventName, args) {
+    console.log(socketId, eventName, args);
+    sockets[socketId].emit("data-app-server", eventName, args);
+};
+
 io.on("connection", function(socket) {
     var newPlayer = {
         id: socket.id,
@@ -54,16 +60,13 @@ io.on("connection", function(socket) {
         var appId = roomManager.getAppId(newPlayer.room);
         socket.emit("room-joined", newPlayer.room, appManager.appNames());
         if(appId !== -1) { //App selected
-            socket.emit("app-changed", appId);
+            socket.emit("app-changed", appId, appManager.appNames()[appId]);
 
             var updatePlayer = {
-                socket: socket,
                 name: newPlayer.name,
                 role: newPlayer.role
             };
-            appManager.joinApp(newPlayer.room, appId, newPlayer.id, updatePlayer, function(appData) {
-                socket.emit("app-selected", appData);
-            });
+            appManager.joinApp(newPlayer.room, newPlayer.id, updatePlayer);
 
             var roomPlayers = roomManager.rooms[newPlayer.room].players;
             for(var i = 0; i < roomPlayers.length; ++i){
@@ -90,26 +93,19 @@ io.on("connection", function(socket) {
             var roomPlayers = roomManager.rooms[newPlayer.room].players;
             for(var i = 0; i < roomPlayers.length; ++i){
                 var p = roomPlayers[i];
-                sockets[p.id].emit("app-changed", appId);
+                sockets[p.id].emit("app-changed", appId, appManager.appNames()[appId]);
                 updatePlayers[p.id] = {
-                    socket: sockets[p.id],
                     name: p.name,
                     role: p.role
                 };
             }
 
-            appManager.selectApp(newPlayer.room, appId, updatePlayers, function(appData) {
-                //send to all players in the room
-                for(var i = 0; i < roomPlayers.length; ++i) {
-                    sockets[roomPlayers[i].id].emit("app-selected", appData);
-                }
-            });
+            appManager.selectApp(newPlayer.room, appId, updatePlayers);
         }
     });
 
-    socket.on("dataApp", function() { //retrieve data sent by app
-        var args = Array.prototype.slice.call(arguments);
-        appManager.dataRetrieved(newPlayer.room, socket, args[0], args.slice(1));
+    socket.on("dataApp", function(eventName, args) { //retrieve data sent by app
+        appManager.dataRetrieved(newPlayer.room, socket.id, eventName, args);
     });
 
     socket.on("leave", function() {
