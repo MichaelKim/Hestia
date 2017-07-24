@@ -35,6 +35,10 @@ function startGame(option, name) {
     }
     loaded = true;
 
+    if(screenfull.enabled) {
+		screenfull.request();
+	}
+
     if(option === "create") {
         socket.emit("startCreate", name);
     }

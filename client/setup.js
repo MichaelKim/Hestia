@@ -33,7 +33,7 @@ function loadApp(appName) {
     var wrapper = document.getElementById("wrapper");
     wrapper.style.display = "none";
     appBox.style.display = "block";
-    appBox.src = "https://hestia-apps.herokuapp.com/" + appName;
+    appBox.contentWindow.location.replace("https://hestia-apps.herokuapp.com/" + appName);
 }
 
 function executeApp(eventName, args) {

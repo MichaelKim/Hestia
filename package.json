@@ -1,12 +1,12 @@
 {
-  "name": "qhacks2017",
+  "name": "hestia",
   "version": "1.0.0",
-  "description": "QHacks2017 Submission",
+  "description": "Multiplayer real-time web apps",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LenKagamine/QHacks2017.git"
+    "url": "https://github.com/LenKagamine/Hestia.git"
   },
-  "bugs": "https://github.com/LenKagamine/QHacks2017/issues",
+  "bugs": "https://github.com/LenKagamine/Hestia/issues",
   "dependencies": {
     "compression": "^1.6.0",
     "express": "^4.13.3",

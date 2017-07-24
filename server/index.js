@@ -8,7 +8,6 @@ var appManager = require("./app.js");
 
 var sockets = {};
 
-console.log(appManager);
 appManager.send = function(socketId, eventName, args) {
     console.log(socketId, eventName, args);
     sockets[socketId].emit("data-app-server", eventName, args);
@@ -130,7 +129,7 @@ io.on("connection", function(socket) {
         }
         else {
             // leave room
-            if(roomManager.rooms[newPlayer.room].app !== -1) {
+            if(roomManager.getAppId(newPlayer.room) !== -1) {
                 // leave app
                 appManager.leaveApp(newPlayer.room, newPlayer.id);
             }
