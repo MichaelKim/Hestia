@@ -7,25 +7,26 @@
     <link rel="stylesheet" href="main.css"/>
 </head>
 <body>
-    <div id="center">
-        <div id="header-title">
-            <h1 id="title">Hestia</h1>
-            <h2 id="subtitle">Multiplayer Web Apps To Go</h2>
-            <div id="btn-row">
-                <button id="create-btn">Create Room</button>
-                <button id="join-btn">Join Room</button>
+    <div id="container">
+        <div id="center">
+            <div id="header-title">
+                <h1 id="title">Hestia</h1>
+                <h2 id="subtitle">Multiplayer Web Apps To Go</h2>
+                <div id="btn-row">
+                    <button id="create-btn">Create Room</button>
+                    <button id="join-btn">Join Room</button>
+                </div>
+                <input type="text" id="room-id" placeholder="Room ID">
+                <input type="text" id="name" placeholder="Name">
             </div>
-            <input type="text" id="room-id" placeholder="Room ID">
-            <input type="text" id="name" placeholder="Name">
-        </div>
 
-        <div id="wrapper">
-            <h1 id="waiting">Pick an App to Run</h1>
-            <div id="app-list"></div>
+            <div id="wrapper">
+                <h1 id="waiting">Pick an App to Run</h1>
+                <div id="app-list"></div>
+            </div>
         </div>
+        <iframe id="app-box" src="#"></iframe>
     </div>
-
-    <iframe id="app-box" src="#"></iframe>
 
     <div id="info">
         <p id="room-info">Room: N/A</p>

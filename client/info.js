@@ -26,7 +26,7 @@ function setRole(role) {
 }
 
 function setApp(app) {
-    appInfo.innerHTML = "App: " + (app < 0 ? "not selected" : app);
+    appInfo.innerHTML = "App: " + (app < 0 ? "N/A" : app);
 }
 
 function showError(message){
