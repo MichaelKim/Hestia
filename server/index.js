@@ -108,60 +108,59 @@ io.on("connection", function(socket) {
     });
 
     socket.on("leave", function() {
-        if(newPlayer.role === 0) {
-            if(roomManager.rooms[newPlayer.room].app === -1) {
-                // host leaves room
-                // leave room
-                console.log("Player exit: " + newPlayer.id);
-                socket.emit("leave-room");
-                socket.disconnect(0);
-            }
-            else {
-                roomManager.rooms[newPlayer.room].app = -1;
-
-                appManager.quitApp(newPlayer.room);
-
-                var roomPlayers = roomManager.rooms[newPlayer.room].players;
-                for(var i = 0; i < roomPlayers.length; ++i){
-                    sockets[roomPlayers[i].id].emit("leave-app", appManager.appNames());
-                }
-            }
+        if(newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
+            // leave app
+            leaveApp(newPlayer);
         }
         else {
-            // leave room
-            if(roomManager.getAppId(newPlayer.room) !== -1) {
-                // leave app
-                appManager.leaveApp(newPlayer.room, newPlayer.id);
-            }
-            console.log("Player exit: " + newPlayer.id);
-            socket.emit("leave-room");
             socket.disconnect(0);
         }
     });
 
-    socket.on('end', function() {
-        console.log("Player exit: " + newPlayer.id);
-        socket.disconnect(0);
-    });
-
     socket.on('disconnect', function(){
-        if(newPlayer.room !== -1 && roomManager.getAppId(newPlayer.room) !== -1) {
-            var roomPlayers = roomManager.rooms[newPlayer.room].players;
-            for(var i = 0; i < roomPlayers.length; ++i){
-                if(roomPlayers[i].id !== newPlayer.id) {
-                    sockets[roomPlayers[i].id].emit("player-left", newPlayer.name);
-                }
-            }
+        if(newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
+            leaveApp(newPlayer);
         }
-
-        var newHostId = roomManager.leaveRoom(newPlayer);
-        if(newHostId) {
-            sockets[newHostId].emit("role-changed", 0); //new host
+        else {
+            leaveRoom(newPlayer);
         }
-
         console.log("Player dc: " + newPlayer.id);
     });
 });
+
+function leaveApp(newPlayer) {
+    console.log("Player leave app: " + newPlayer.id);
+    roomManager.setAppId(newPlayer.room, -1);
+
+    appManager.quitApp(newPlayer.room);
+
+    var roomPlayers = roomManager.rooms[newPlayer.room].players;
+    for(var i = 0; i < roomPlayers.length; ++i){
+        sockets[roomPlayers[i].id].emit("leave-app", appManager.appNames());
+    }
+}
+
+function leaveRoom(newPlayer) {
+    console.log("Player exit: " + newPlayer.id);
+    sockets[newPlayer.id].emit("leave-room");
+
+    if(roomManager.getAppId(newPlayer.room) !== -1) {
+        // leave app
+        appManager.leaveApp(newPlayer.room, newPlayer.id);
+
+        var roomPlayers = roomManager.rooms[newPlayer.room].players;
+        for(var i = 0; i < roomPlayers.length; ++i){
+            if(roomPlayers[i].id !== newPlayer.id) {
+                sockets[roomPlayers[i].id].emit("player-left", newPlayer.name);
+            }
+        }
+    }
+
+    var newHostId = roomManager.leaveRoom(newPlayer);
+    if(newHostId) {
+        sockets[newHostId].emit("role-changed", 0); //new host
+    }
+}
 
 app.use(comp());
 app.use(express.static(__dirname + '/../client'));

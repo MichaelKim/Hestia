@@ -61,4 +61,8 @@ function setupSocket(socket){
     socket.on("leave-room", function() {
         leaveRoom();
     });
+
+    socket.on("disconnect", function() {
+        leaveRoom();
+    });
 }

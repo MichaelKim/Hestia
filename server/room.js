@@ -29,7 +29,7 @@ module.exports = {
 
     // "player" leaves room they're currently in
     leaveRoom: function(player){
-        if(this.rooms[player.room] === undefined){
+        if(!this.roomExists(player.room)) {
             console.log("room " + player.room + " not found");
             return;
         }
@@ -76,7 +76,10 @@ module.exports = {
     },
 
     getAppId: function(roomId) {
-        return this.rooms[roomId].app;
+        if(this.roomExists(roomId)) {
+            return this.rooms[roomId].app;
+        }
+        return -1;
     },
 
     setAppId: function(roomId, appId) {
