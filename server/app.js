@@ -1,8 +1,12 @@
-var appNames = [];
-var dank = new apps();
 var appsSocket = require('socket.io-client')('https://hestia-apps.herokuapp.com');
+
+var appNames = [];
+var appsConnected = false;
+var appManager = new apps();
+
 appsSocket.on('connect', function() {
     console.log("APPS: CONNECT");
+    appsConnected = true;
 });
 
 appsSocket.on("appNames", function(names) {
@@ -12,18 +16,19 @@ appsSocket.on("appNames", function(names) {
 
 appsSocket.on("apps-emit", function(socketId, eventName, args) {
     console.log("apps-emit:", eventName, args);
-    dank.send(socketId, eventName, args);
+    appManager.send(socketId, eventName, args);
 });
 
 appsSocket.on("apps-emit-all", function(eventName, args, players) {
     console.log("apps-emit-all:", eventName, args);
     for(var id in players) {
-        dank.send(id, eventName, args);
+        appManager.send(id, eventName, args);
     }
 });
 
 appsSocket.on('disconnect', function() {
     console.log("APPS: DISCONNECT");
+    appsConnected = false;
 });
 
 function apps() {
@@ -34,6 +39,10 @@ function apps() {
     this.appNames = function(){
         return appNames;
     };
+
+    this.connected = function() {
+        return appsConnected;
+    }
 
     this.selectApp = function(roomId, appId, players){
         console.log("selectApp", roomId, appId, players);
@@ -63,4 +72,4 @@ function apps() {
     this.send = function() {};
 };
 
-module.exports = dank;
+module.exports = appManager;

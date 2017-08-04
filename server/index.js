@@ -9,7 +9,6 @@ var appManager = require("./app.js");
 var sockets = {};
 
 appManager.send = function(socketId, eventName, args) {
-    console.log(socketId, eventName, args);
     sockets[socketId].emit("data-app-server", eventName, args);
 };
 
@@ -22,6 +21,12 @@ io.on("connection", function(socket) {
     };
 
     socket.on("startCreate", function(name) {
+        if(!appManager.connected()) { // Hestia Apps is unavailable
+            socket.emit("error-msg", "Hestia Apps is currently unavailable");
+            socket.disconnect(0);
+            return;
+        }
+
         if(newPlayer.room !== -1){ //switching rooms
             var newHostId = roomManager.leaveRoom(newPlayer);
             if(newHostId) {
@@ -38,6 +43,12 @@ io.on("connection", function(socket) {
     });
 
     socket.on("startJoin", function(name, roomId) {
+        if(!appManager.connected()) { // Hestia Apps is unavailable
+            socket.emit("error-msg", "Hestia Apps is currently unavailable");
+            socket.disconnect(0);
+            return;
+        }
+
         if(!roomManager.roomExists(roomId)) { //room doesn't exist
             socket.emit("error-msg", "Room does not exist");
             return;
@@ -118,13 +129,15 @@ io.on("connection", function(socket) {
     });
 
     socket.on('disconnect', function(){
-        if(newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
-            leaveApp(newPlayer);
+        if(sockets[newPlayer.id]) {
+            if(newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
+                leaveApp(newPlayer);
+            }
+            else {
+                leaveRoom(newPlayer);
+            }
+            console.log("Player dc: " + newPlayer.id);
         }
-        else {
-            leaveRoom(newPlayer);
-        }
-        console.log("Player dc: " + newPlayer.id);
     });
 });
 
