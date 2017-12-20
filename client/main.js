@@ -9,23 +9,39 @@ window.onload = function () {
 
     var leaveInfo = document.getElementById("leave-info");
 
+    roomId.onkeypress = name.onkeypress = function (e) {
+        let key = e.keyCode || e.which;
+        if (key === 13) {
+            if(roomId.value) join(roomId.value, name.value);
+            else create(name.value);
+        }
+    }
+
     joinBtn.onclick = function () {
-        if(validId(roomId.value)) {
-            startGame(roomId.value, name.value);
-        }
-        else {
-            showError("Invalid room ID");
-        }
+        join(roomId.value, name.value);
     };
 
     createBtn.onclick = function() {
-        startGame("create", name.value);
+        create(name.value);
     };
 
     leaveInfo.onclick = function() {
         socket.emit("leave");
     };
 };
+
+function join(room, name) {
+    if(validId(room)) {
+        startGame(room, name);
+    }
+    else {
+        showError("Invalid room ID");
+    }
+}
+
+function create(name) {
+    startGame("create", name);
+}
 
 function startGame(option, name) {
     socket = io();
