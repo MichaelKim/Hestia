@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Enlighten</title>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+</head>
+<body>
+    <div id="display">
+        <div id="ping">Ping: 100</div>
+        <div id="fps">FPS: 60</div>
+        <div id="room">Room: N/A</div>
+        <div id="numPlayer">Players: 0</div>
+    </div>
+    <!-- <div id="menu">
+        <h1 id="title">Enlighten</h1>
+        <div id="instructions">
+            <div style="margin:0 200px;">
+                <div style="width:50%;float:left;">
+                    <p>Controls</p>
+                    <p>WASD or Arrow Keys to move around</p>
+                </div>
+                <div style="width:50%;display:inline-block;">
+                    <p>Goal</p>
+                    <p>Get to the end of the mazes</p>
+                </div>
+            </div>
+            <p>Be careful: Each time you collide with a wall, you leave a light, and return to the start of the maze</p>
+            <p>Tip: Pick up a temporary light from the permanent light source</p>
+            <p>Play together: the more players online, the easier it is to complete a level</p>
+        </div>
+        <button id="startbtn">Start</button>
+    </div> -->
+    <div id="game">
+        <canvas id="canbot"></canvas>
+        <canvas tabindex="1" id="cantop"></canvas>
+    </div>
+    <script type="text/javascript" src="../appHeader.js"></script>
+    <script type="text/javascript" src="info.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="input.js"></script>
+</body>
+</html>

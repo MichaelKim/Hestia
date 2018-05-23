@@ -1,75 +1,118 @@
-var appsSocket = require('socket.io-client')('https://hestia-apps.herokuapp.com');
+const roomApps = []; //0-9999 corresponding to room id
+const appNames = ['Add1', 'Canvas', 'Chat', 'Connect4', 'Ping', 'Quiz', 'Enlighten', 'Controller'];
 
-var appNames = [];
-var appsConnected = false;
-var appManager = new apps();
+module.exports = sockets => {
+  function send(socketId, eventName, args) {
+    sockets[socketId].emit('data-app-server', eventName, args);
+  }
 
-appsSocket.on('connect', function() {
-    console.log("APPS: CONNECT");
-    appsConnected = true;
-});
+  function createRoomApp(players) {
+    return {
+      players, //{ID: { name: NAME, role: ROLE }}
 
-appsSocket.on("appNames", function(names) {
-    appNames = names;
-    console.log("Update app names: " + appNames);
-});
+      ons: [],
 
-appsSocket.on("apps-emit", function(socketId, eventName, args) {
-    console.log("apps-emit:", eventName, args);
-    appManager.send(socketId, eventName, args);
-});
+      on: function(eventName, callback) {
+        this.ons[eventName] = callback;
+      },
 
-appsSocket.on("apps-emit-all", function(eventName, args, players) {
-    console.log("apps-emit-all:", eventName, args);
-    for(var id in players) {
-        appManager.send(id, eventName, args);
+      emit: (socketId, eventName, ...data) => {
+        send(socketId, eventName, data);
+      },
+
+      emitAll: (eventName, ...data) => {
+        Object.keys(players).forEach(id => send(id, eventName, data));
+      },
+
+      execute: function(eventName, socketId, data) {
+        this.ons[eventName].apply(this.ons[eventName], [socketId, ...data]);
+      },
+
+      joined: function(id, name, role) {
+        // Overloaded by app
+        console.log(id + ', ' + name + ' joined, role: ' + role);
+      },
+
+      left: function(id, name, role) {
+        // Overloaded by app
+        console.log(id + ', ' + name + ' left, role: ' + role);
+      },
+
+      onload: function() {
+        // Overloaded by app
+        console.log('onload');
+      },
+
+      connect: function(id) {
+        // Overloaded by app
+        return [];
+      },
+
+      quit: function() {
+        // Overloaded by app
+        console.log('quit');
+      }
+    };
+  }
+
+  return {
+    appsNum: () => {
+      return appNames.length;
+    },
+    appNames: () => {
+      return appNames;
+    },
+    selectApp: (roomId, appId, players) => {
+      var app = createRoomApp(players);
+      app.on('_onload', function(socket) {
+        var names = [];
+        for (var id in app.players) {
+          console.log(id);
+          names.push(app.players[id].name);
+        }
+        var data = app.connect(socket.id);
+        app.emit(socket, '_connected', names, data);
+      });
+
+      var newApp = new (require('./apps/server/' + appNames[appId] + '/server.js'))(app); //create new instance of server.js, not singleton
+      console.log(newApp);
+      newApp.onload();
+      roomApps[roomId] = newApp;
+    },
+    joinApp: (roomId, socketID, player) => {
+      roomApps[roomId].players[socketID] = player;
+
+      roomApps[roomId].joined(socketID, player.name, player.role);
+    },
+
+    dataRetrieved: (roomId, socketId, eventName, data) => {
+      if (roomApps[roomId]) {
+        roomApps[roomId].execute(eventName, socketId, data);
+      }
+    },
+
+    leaveApp: (roomId, socketId) => {
+      // player leaves app
+      if (roomApps[roomId]) {
+        var player = roomApps[roomId].players[socketId];
+        delete roomApps[roomId].players[socketId];
+        roomApps[roomId].left(socketId, player.name, player.role);
+      } else {
+        console.log('leaving app: ' + roomId + ', ' + socketId + ': not found');
+      }
+      // remove player from app.players
+      // roomApps[roomId].players
+      // call some method in app like app.joined / app.left
+    },
+
+    quitApp: roomId => {
+      // host leaves app
+      console.log('room ' + roomId + ' quitting app');
+
+      if (roomApps[roomId]) {
+        roomApps[roomId].quit();
+        delete roomApps[roomId];
+      }
     }
-});
-
-appsSocket.on('disconnect', function() {
-    console.log("APPS: DISCONNECT");
-    appsConnected = false;
-});
-
-function apps() {
-    this.appsNum = function(){
-        return appNames.list;
-    };
-
-    this.appNames = function(){
-        return appNames;
-    };
-
-    this.connected = function() {
-        return appsConnected;
-    }
-
-    this.selectApp = function(roomId, appId, players){
-        console.log("selectApp", roomId, appId, players);
-        appsSocket.emit("selectApp", roomId, appId, players);
-    };
-
-    this.joinApp = function(roomId, socketId, player){
-        console.log("joinApp", roomId, socketId, player);
-        appsSocket.emit("joinApp", roomId, socketId, player);
-    };
-
-    this.dataRetrieved = function(roomId, socketId, eventName, data){
-        console.log("dataRetrieved", roomId, socketId, eventName, data);
-        appsSocket.emit("dataRetrieved", roomId, socketId, eventName, data);
-    };
-
-    this.leaveApp = function(roomId, socketId) { //player leaves app
-        console.log("leaveApp", roomId, socketId);
-        appsSocket.emit("leaveApp", roomId, socketId);
-    };
-
-    this.quitApp = function(roomId){ //host leaves app
-        console.log("quitApp", roomId);
-        appsSocket.emit("quitApp", roomId);
-    };
-
-    this.send = function() {};
+  };
 };
-
-module.exports = appManager;

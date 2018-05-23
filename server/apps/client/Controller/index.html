@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf8">
+    <title>Hestia - Pictionary</title>
+    <style>
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    #cont-box {
+        display: none;
+        user-select: none;
+        width: 100%;
+        height: 100%;
+    }
+    button {
+        width: 100px;
+        height: 100px;
+        margin: 0;
+        padding: 0;
+    }
+    #left-btn, #right-btn {
+        width: 100%;
+        height: 25%;
+    }
+    #top-btn, #bottom-btn {
+        width: 49%;
+        height: 50%;
+    }
+    canvas {
+        display: none;
+        background-color: lightgoldenrodyellow;
+    }
+    </style>
+</head>
+<body>
+    <div id="btn-box">
+        <button id="cont-btn">Controller</button>
+        <button id="spec-btn">Spectator</button>
+    </div>
+    <div id="cont-box">
+        <button id="right-btn">Right</button>
+        <button id="left-btn">Left</button>
+        <button id="top-btn">Top</button>
+        <button id="bottom-btn">Bottom</button>
+        </div>
+    </div>
+    <canvas width="500" height="500" id="canvas"></canvas>
+    <script type="text/javascript" src="../appHeader.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+</body>
+</html>
