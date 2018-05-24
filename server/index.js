@@ -1,11 +1,23 @@
+/* @flow */
+
 const express = require('express');
 const app = express();
 const comp = require('compression');
 const http = require('http').createServer(app);
 const io = require('socket.io').listen(http);
-const roomManager = require('./room.js');
+
 const sockets = {};
+const roomManager = require('./room.js');
 const appManager = require('./app.js')(sockets);
+
+app.use(comp());
+app.use(express.static(__dirname + '/../client'));
+app.use(express.static(__dirname + '/apps/client'));
+
+const port = parseInt(process.env.PORT) || 5000;
+http.listen(port, () => {
+  console.log('listening on:' + port);
+});
 
 io.on('connection', function(socket) {
   const newPlayer = {
@@ -59,11 +71,7 @@ io.on('connection', function(socket) {
       //App selected
       socket.emit('app-changed', appId, appManager.appNames()[appId]);
 
-      var updatePlayer = {
-        name: newPlayer.name,
-        role: newPlayer.role
-      };
-      appManager.joinApp(newPlayer.room, newPlayer.id, updatePlayer);
+      appManager.joinApp(newPlayer.room, newPlayer.id, newPlayer);
 
       var roomPlayers = roomManager.rooms[newPlayer.room].players;
       for (var i = 0; i < roomPlayers.length; ++i) {
@@ -158,21 +166,3 @@ function leaveRoom(newPlayer) {
     sockets[newHostId].emit('role-changed', 0); //new host
   }
 }
-
-app.use(comp());
-app.use(express.static(__dirname + '/../client'));
-
-const appNames = ['Add1', 'Canvas', 'Chat', 'Connect4', 'Ping', 'Quiz', 'Enlighten', 'Controller'];
-app.use((req, res, next) => {
-  const name = req.path.split('/')[1];
-  if (appNames.indexOf(name) === -1 && name !== 'appHeader.js') {
-    res.send('No app found');
-  } else {
-    next();
-  }
-}, express.static(__dirname + '/apps/client'));
-
-const port = process.env.PORT || 5000;
-http.listen(port, () => {
-  console.log('listening on:' + port);
-});

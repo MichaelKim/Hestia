@@ -1,16 +1,27 @@
+/* @flow */
+
 const roomApps = []; //0-9999 corresponding to room id
 const appNames = ['Add1', 'Canvas', 'Chat', 'Connect4', 'Ping', 'Quiz', 'Enlighten', 'Controller'];
 
-module.exports = sockets => {
-  function send(socketId, eventName, args) {
+import type { Socket, Player } from './types';
+
+type Players = {
+  [id: number]: {
+    +name: string,
+    +role: number
+  }
+};
+
+module.exports = (sockets: { [number]: Socket }) => {
+  function send(socketId: number, eventName: string, args: any) {
     sockets[socketId].emit('data-app-server', eventName, args);
   }
 
-  function createRoomApp(players) {
+  function createRoomApp(players: Players) {
     return {
       players, //{ID: { name: NAME, role: ROLE }}
 
-      ons: [],
+      ons: {},
 
       on: function(eventName, callback) {
         this.ons[eventName] = callback;
@@ -21,7 +32,7 @@ module.exports = sockets => {
       },
 
       emitAll: (eventName, ...data) => {
-        Object.keys(players).forEach(id => send(id, eventName, data));
+        Object.keys(players).forEach(id => send(parseInt(id), eventName, data));
       },
 
       execute: function(eventName, socketId, data) {
@@ -62,36 +73,33 @@ module.exports = sockets => {
     appNames: () => {
       return appNames;
     },
-    selectApp: (roomId, appId, players) => {
+    selectApp: (roomId: number, appId: number, players: Players) => {
       var app = createRoomApp(players);
       app.on('_onload', function(socket) {
-        var names = [];
-        for (var id in app.players) {
-          console.log(id);
-          names.push(app.players[id].name);
-        }
-        var data = app.connect(socket.id);
+        const names = Object.keys(app.players).map(id => app.players[parseInt(id)].name);
+        const data = app.connect(socket.id);
         app.emit(socket, '_connected', names, data);
       });
 
+      // $FlowFixMe
       var newApp = new (require('./apps/server/' + appNames[appId] + '/server.js'))(app); //create new instance of server.js, not singleton
       console.log(newApp);
       newApp.onload();
       roomApps[roomId] = newApp;
     },
-    joinApp: (roomId, socketID, player) => {
+    joinApp: (roomId: number, socketID: number, player: Player) => {
       roomApps[roomId].players[socketID] = player;
 
       roomApps[roomId].joined(socketID, player.name, player.role);
     },
 
-    dataRetrieved: (roomId, socketId, eventName, data) => {
+    dataRetrieved: (roomId: number, socketId: number, eventName: string, data: any) => {
       if (roomApps[roomId]) {
         roomApps[roomId].execute(eventName, socketId, data);
       }
     },
 
-    leaveApp: (roomId, socketId) => {
+    leaveApp: (roomId: number, socketId: number) => {
       // player leaves app
       if (roomApps[roomId]) {
         var player = roomApps[roomId].players[socketId];
@@ -105,7 +113,7 @@ module.exports = sockets => {
       // call some method in app like app.joined / app.left
     },
 
-    quitApp: roomId => {
+    quitApp: (roomId: number) => {
       // host leaves app
       console.log('room ' + roomId + ' quitting app');
 
