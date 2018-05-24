@@ -5,7 +5,7 @@ export type Socket = {|
 |};
 
 export type Player = {|
-  +id: number,
+  +id: string,
   +name: string,
   room: number,
   role: number

@@ -6,14 +6,14 @@ const appNames = ['Add1', 'Canvas', 'Chat', 'Connect4', 'Ping', 'Quiz', 'Enlight
 import type { Socket, Player } from './types';
 
 type Players = {
-  [id: number]: {
+  [id: string]: {
     +name: string,
     +role: number
   }
 };
 
-module.exports = (sockets: { [number]: Socket }) => {
-  function send(socketId: number, eventName: string, args: any) {
+module.exports = (sockets: { [string]: Socket }) => {
+  function send(socketId: string, eventName: string, args: any) {
     sockets[socketId].emit('data-app-server', eventName, args);
   }
 
@@ -32,7 +32,7 @@ module.exports = (sockets: { [number]: Socket }) => {
       },
 
       emitAll: (eventName, ...data) => {
-        Object.keys(players).forEach(id => send(parseInt(id), eventName, data));
+        Object.keys(players).forEach(id => send(id, eventName, data));
       },
 
       execute: function(eventName, socketId, data) {
@@ -76,7 +76,7 @@ module.exports = (sockets: { [number]: Socket }) => {
     selectApp: (roomId: number, appId: number, players: Players) => {
       var app = createRoomApp(players);
       app.on('_onload', function(socket) {
-        const names = Object.keys(app.players).map(id => app.players[parseInt(id)].name);
+        const names = Object.keys(app.players).map(id => app.players[id].name);
         const data = app.connect(socket.id);
         app.emit(socket, '_connected', names, data);
       });
