@@ -1,0 +1,1 @@
+web: babel server -d dist && node dist/index.js
