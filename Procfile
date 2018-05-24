@@ -1,1 +1,1 @@
-web: babel server -d dist && node dist/index.js
+web: npm run build && npm run serve

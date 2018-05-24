@@ -1,5 +1,6 @@
 var waiting = document.getElementById('waiting');
 var names = [];
+var appURL = 'https://hestiaroom.herokuapp.com';
 
 function loadAppsList(appNames) {
   console.log(appNames);
@@ -33,7 +34,7 @@ function loadApp(appName) {
   var wrapper = document.getElementById('wrapper');
   wrapper.style.display = 'none';
   appBox.style.display = 'block';
-  appBox.contentWindow.location.replace('http://localhost:5000/' + appName);
+  appBox.contentWindow.location.replace(appURL + '/' + appName);
 }
 
 function executeApp(eventName, args) {
@@ -73,7 +74,7 @@ function setupAppWindow() {
   window.addEventListener(
     'message',
     function(event) {
-      if (event.origin.indexOf('http://localhost:5000') === -1) {
+      if (event.origin.indexOf(appURL) === -1) {
         return;
       }
 
