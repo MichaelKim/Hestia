@@ -43,7 +43,7 @@ app.on('_connected', function(names, data) {
   app.onload(data);
 });
 window.addEventListener('message', function(event) {
-  if (event.origin.indexOf('https://hestiaroom.herokuapp.com') === -1) {
+  if (event.origin.indexOf('http://localhost:5000') === -1) {
     return;
   }
 

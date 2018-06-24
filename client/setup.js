@@ -1,6 +1,6 @@
 var waiting = document.getElementById('waiting');
 var names = [];
-var appURL = 'https://hestiaroom.herokuapp.com';
+var appURL = 'http://localhost:5000';
 
 function loadAppsList(appNames) {
   console.log(appNames);

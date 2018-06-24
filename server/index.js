@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const comp = require('compression');
 const http = require('http').createServer(app);
-const io = require('socket.io').listen(http);
+const h = require('hestia-apps')(http, __dirname);
 
 app.use(comp());
 app.use(express.static(__dirname + '/../client'));
@@ -15,157 +15,112 @@ http.listen(port, () => {
   console.log('listening on:' + port);
 });
 
-import { toRoomID, toAppID } from './types';
-import type { Socket, Player, PlayerID, RoomID, AppID } from './types';
+/*
+Hestia example: hestia apps website
+- Entry: create, join
+- Multiple apps
+*/
 
-const sockets: { [PlayerID]: Socket } = {};
-const roomManager = require('./room.js');
-const appManager = require('./app.js')(sockets);
+const appNames = ['Add1', 'Canvas', 'Chat', 'Connect4', 'Ping', 'Quiz', 'Enlighten', 'Controller'];
 
-io.on('connection', (socket: Socket) => {
-  const newPlayer: Player = {
+h.on('startCreate', (socket: any, name: string) => {
+  console.log('Creating new room');
+  const roomID = h.createRoom({
+    host: socket.id,
+    players: [socket.id]
+  });
+
+  h.addPlayer({
     id: socket.id,
-    name: '',
-    room: toRoomID(-1),
-    role: -1 //-1: not set, 0: host, 1: player, 2: spectator
-  };
-
-  socket.on('startCreate', (name: string) => {
-    if (newPlayer.room !== -1) {
-      // Switching rooms
-      const newHostId = roomManager.leaveRoom(newPlayer);
-      if (newHostId) {
-        sockets[newHostId].emit('role-changed', 0);
-      }
-    }
-
-    newPlayer.name = name;
-    newPlayer.role = 0;
-
-    roomManager.createRoom(newPlayer);
-    sockets[newPlayer.id] = socket;
-    socket.emit('room-created', newPlayer.room, appManager.getAppNames());
+    name,
+    room: roomID,
+    role: 0
   });
 
-  socket.on('startJoin', (name: string, roomId: RoomID) => {
-    if (!roomManager.roomExists(roomId)) {
-      //room doesn't exist
-      socket.emit('error-msg', 'Room does not exist');
-      return;
-    }
+  socket.emit('room-created', roomID, appNames);
+});
 
-    newPlayer.name = name;
-    newPlayer.role = 1;
-
-    if (newPlayer.room !== -1) {
-      //switching rooms
-      const newHostId = roomManager.leaveRoom(newPlayer);
-      if (newHostId) {
-        sockets[newHostId].emit('role-changed', 0);
-      }
-    }
-
-    roomManager.joinRoom(roomId, newPlayer);
-    sockets[newPlayer.id] = socket;
-
-    const appId = roomManager.getAppId(newPlayer.room);
-    socket.emit('room-joined', newPlayer.room, appManager.getAppNames());
-    if (appId !== -1) {
-      //App selected
-      socket.emit('app-changed', appId, appManager.getAppNames()[appId]);
-
-      appManager.joinApp(newPlayer.room, newPlayer.id, newPlayer);
-
-      const roomPlayers = roomManager.getPlayers(newPlayer.room);
-      roomPlayers.forEach(player => {
-        if (player.id !== newPlayer.id) {
-          sockets[player.id].emit('player-joined', newPlayer.name);
-        }
-      });
-    }
+h.on('startJoin', (socket: any, name: string, roomID: number) => {
+  h.addPlayer({
+    id: socket.id,
+    name,
+    room: roomID,
+    role: 1
   });
 
-  socket.on('selectApp', (appId: AppID) => {
-    if (newPlayer.role !== 0) {
-      socket.emit('error-msg', 'Only host can change app');
-    } else if (appId < 0 || appId >= appManager.appsNum()) {
-      socket.emit('error-msg', 'Invalid app ID');
-    } else {
-      console.log('room ' + newPlayer.room + ' selected app ' + appId);
-      roomManager.setAppId(newPlayer.room, appId);
+  const success = h.joinRoom(roomID, socket.id);
+  if (!success) {
+    // TODO: if room doesn't exist, player is added to global players list, but not in room: memory leak
+    socket.emit('error-msg', 'Room does not exist');
+    return;
+  }
 
-      //send to everyone in room about app selection
-      const updatePlayers: {
-        [PlayerID]: Player
-      } = {};
-      const roomPlayers = roomManager.getPlayers(newPlayer.room);
-      const appName = appManager.getAppNames()[appId];
-      roomPlayers.forEach(p => {
-        sockets[p.id].emit('app-changed', appId, appName);
-        updatePlayers[p.id] = p;
-      });
+  socket.emit('room-joined', roomID, appNames);
 
-      appManager.selectApp(newPlayer.room, appId, updatePlayers);
-    }
-  });
+  const appName = h.getAppName(roomID);
+  if (appName) {
+    socket.emit('app-changed', appNames.indexOf(appName), appName);
+  }
+});
 
-  socket.on('dataApp', (eventName: string, args: any) => {
-    //retrieve data sent by app
-    appManager.dataRetrieved(newPlayer.room, socket.id, eventName, args);
-  });
+h.on('selectApp', (socket: any, appID: number) => {
+  const player = h.getPlayer(socket.id);
 
-  socket.on('leave', () => {
-    if (newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
-      // leave app
-      leaveApp(newPlayer);
-    } else {
-      socket.disconnect(0);
-    }
-  });
+  if (player.role !== 0) {
+    socket.emit('error-msg', 'Only hosts can select apps');
+    return;
+  }
+  if (appID < 0 || appID >= appNames.length) {
+    socket.emit('error-msg', 'Invalid app ID');
+    return;
+  }
 
-  socket.on('disconnect', () => {
-    if (sockets[newPlayer.id]) {
-      if (newPlayer.role === 0 && roomManager.getAppId(newPlayer.room) !== -1) {
-        leaveApp(newPlayer);
-      } else {
-        leaveRoom(newPlayer);
-      }
-      console.log('Player dc: ' + newPlayer.id);
-    }
+  const appName = appNames[appID];
+  h.joinApp(player.room, appName, './apps/server/' + appName + '/server.js');
+
+  h.getPlayers(player.room).forEach(pid => {
+    h.getSocket(pid).emit('app-changed', appID, appName);
   });
 });
 
-function leaveApp(newPlayer) {
-  console.log('Player leave app: ' + newPlayer.id);
-  roomManager.setAppId(newPlayer.room, toAppID(-1));
+h.on('leave', (socket: any) => {
+  const player = h.getPlayer(socket.id);
 
-  appManager.quitApp(newPlayer.room);
+  if (player.role === 0 && h.getAppName(player.room) !== '') {
+    // Host leaves app = room leaves app
+    console.log('Room ' + player.room + ': Leaving app');
+    h.leaveApp(player.room);
 
-  const roomPlayers = roomManager.getPlayers(newPlayer.room);
-  const appNames = appManager.getAppNames();
-  roomPlayers.forEach(player => {
-    sockets[player.id].emit('leave-app', appNames);
-  });
-}
-
-function leaveRoom(newPlayer) {
-  console.log('Player exit: ' + newPlayer.id);
-  sockets[newPlayer.id].emit('leave-room');
-
-  if (roomManager.getAppId(newPlayer.room) !== -1) {
-    // leave app
-    appManager.leaveApp(newPlayer.room, newPlayer.id);
-
-    const roomPlayers = roomManager.getPlayers(newPlayer.room);
-    roomPlayers.forEach(player => {
-      if (player.id !== newPlayer.id) {
-        sockets[player.id].emit('player-left', newPlayer.name);
-      }
+    h.getPlayers(player.room).forEach(pid => {
+      h.getSocket(pid).emit('leave-app', appNames);
     });
-  }
+  } else {
+    console.log('Player ' + player.id + ' quitting');
+    const numPlayers = h.getPlayers(player.room).length;
 
-  const newHostId = roomManager.leaveRoom(newPlayer);
-  if (newHostId) {
-    sockets[newHostId].emit('role-changed', 0); //new host
+    h.leaveRoom(player.id);
+    socket.emit('leave-room');
+
+    // Get new host
+    if (numPlayers > 1 && player.role === 0) {
+      // Set room's host
+      let newHostID: string = '';
+      h.editRoom(player.room, room => {
+        newHostID = room.players[0];
+        return {
+          ...room,
+          host: newHostID
+        };
+      });
+
+      // Set player to host
+      h.editPlayer(newHostID, newHost => {
+        newHost.role = 0;
+        return newHost;
+      });
+      h.getSocket(newHostID).emit('role-changed', 0);
+    }
+
+    socket.disconnect(0);
   }
-}
+});
