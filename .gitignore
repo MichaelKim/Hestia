@@ -1,6 +1,4 @@
+lib
+structure.md
+ideas.md
 node_modules
-todo.md
-Documentation.md
-.DS_Store
-npm-debug.log
-dist/
