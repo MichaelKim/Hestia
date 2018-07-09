@@ -83,6 +83,7 @@ function hestia(io: any) {
       const numPlayers = roomManager.getPlayers(player.room).length;
 
       roomManager.leaveRoom(player.room, pid);
+      players[pid].room = -1;
 
       if (numPlayers > 1) {
         const currentApp = roomManager.getAppName(player.room);

@@ -43,7 +43,7 @@ http.listen(5000);
 
 ## Documentation
 
-Check out the full documentation [here](https://github.com/LenKagamine/hestia-apps/wiki).
+Full documentation coming soon!
 
 ## License
 
