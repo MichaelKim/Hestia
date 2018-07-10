@@ -4,12 +4,28 @@
 
 import type { Socket, Player, Room, PlayerID, RoomID, AppID } from './types';
 
-function hestia(io: any) {
+const read = require('fs').readFileSync;
+const socketio = require('socket.io');
+
+function hestia(http: any) {
   const sockets: { [PlayerID]: Socket } = {};
   const players: { [PlayerID]: Player } = {};
   const roomManager = require('./room');
   const appManager = require('./app')(sockets);
   const ons: { [string]: Function } = {};
+
+  this.io = socketio(http);
+  http.on('request', (req, res) => {
+    if (req.url === '/hestia.js') {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.writeHead(200);
+      res.end(read(require.resolve('hestia.io-client/dist/index.js')), 'utf-8');
+    } else if (req.url === '/appHeader.js') {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.writeHead(200);
+      res.end(read(require.resolve('hestia.io-client/dist/appHeader.js')), 'utf-8');
+    }
+  });
 
   this.on = (eventName: string, callback: Function) => {
     ons[eventName] = callback;
@@ -115,7 +131,7 @@ function hestia(io: any) {
     appManager.quitApp(rid);
   };
 
-  io.on('connection', (socket: Socket) => {
+  this.io.on('connection', (socket: Socket) => {
     sockets[socket.id] = socket;
     Object.keys(ons).forEach(eventName => {
       socket.on(eventName, (...args) => ons[eventName](socket, ...args));
@@ -146,4 +162,4 @@ function hestia(io: any) {
   });
 }
 
-module.exports = (io: any) => new hestia(io);
+module.exports = (http: any) => new hestia(http);
