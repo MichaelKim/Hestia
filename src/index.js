@@ -19,7 +19,7 @@ function hestia(http: any) {
     if (req.url === '/hestia.js') {
       res.setHeader('Content-Type', 'application/javascript');
       res.writeHead(200);
-      res.end(read(require.resolve('hestia.io-client/dist/index.js')), 'utf-8');
+      res.end(read(require.resolve('hestia.io-client/dist/hestia.js')), 'utf-8');
     } else if (req.url === '/appHeader.js') {
       res.setHeader('Content-Type', 'application/javascript');
       res.writeHead(200);
@@ -65,7 +65,7 @@ function hestia(http: any) {
 
       const currentApp = roomManager.getAppName(rid);
       if (currentApp !== '') {
-        appManager.joinApp(rid, players[pid]);
+        appManager.joinApp(rid, currentApp, players[pid]);
         roomManager.getPlayers(rid).forEach(p => {
           if (pid !== p) {
             sockets[p].emit('player-joined', players[pid].name);
@@ -123,7 +123,7 @@ function hestia(http: any) {
     roomManager.setAppName(rid, appName);
 
     const roomPlayers = roomManager.getPlayers(rid).map(pid => players[pid]);
-    appManager.selectApp(rid, appPath, roomPlayers);
+    appManager.selectApp(rid, appName, appPath, roomPlayers);
   };
 
   this.leaveApp = (rid: RoomID) => {

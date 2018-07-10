@@ -10,7 +10,7 @@
   },
   "bugs": "https://github.com/LenKagamine/Hestia/issues",
   "files": [
-    "lib"
+    "lib/"
   ],
   "license": "MIT",
   "scripts": {

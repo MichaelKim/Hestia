@@ -1,13 +1,13 @@
-# hestia-apps
+# hestia.io
 
 ## Features
 
-Hestia Apps is a web app framework that manages instances of multi-user real-time apps.
+Hestia.io is a web app framework that manages instances of multi-user real-time apps.
 
 It consists of
 
 - A Node.js server (this repository)
-- A Javascript client library
+- [A Javascript client library](https://github.com/LenKagamine/hestia-client)
 
 ## Installation
 
@@ -21,10 +21,9 @@ Hestia manages sockets with Socket.IO, and has a similar interface for handling 
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
 
 // Initialize hestia
-const h = require('hestia-apps')(io);
+const h = require('hestia-apps')(http);
 
 // Provide client-side app
 app.use(express.static(__dirname + '/app/client.js'));
@@ -47,4 +46,4 @@ Full documentation coming soon!
 
 ## License
 
-[MIT](https://github.com/LenKagamine/hestia-apps/blob/master/LICENSE)
+[MIT](https://github.com/LenKagamine/hestia/blob/master/LICENSE)

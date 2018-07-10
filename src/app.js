@@ -4,31 +4,62 @@ import type { Socket, Player, PlayerID, App, AppID, RoomID } from './types';
 
 const roomApps: { [RoomID]: App } = {}; //0-9999 corresponding to room id
 
-function joinApp(roomID: RoomID, player: Player) {
-  roomApps[roomID].players[player.id] = player;
-  roomApps[roomID].joined(player.id, player.name, player.role);
-}
-
-function leaveApp(roomID: RoomID, playerID: PlayerID) {
-  if (roomApps[roomID]) {
-    const player = roomApps[roomID].players[playerID];
-    delete roomApps[roomID].players[playerID];
-    roomApps[roomID].left(playerID, player.name, player.role);
-  }
-}
-
-function quitApp(roomID: RoomID) {
-  if (roomApps[roomID]) {
-    roomApps[roomID].quit();
-    delete roomApps[roomID];
-  }
-}
-
-function dataRetrieved(roomID: RoomID, playerID: PlayerID, eventName: string, data: any) {
-  roomApps[roomID].execute(eventName, playerID, data);
-}
-
 module.exports = (sockets: { [PlayerID]: Socket }) => {
+  function joinApp(roomID: RoomID, appName: string, player: Player) {
+    roomApps[roomID].players[player.id] = player;
+    roomApps[roomID].joined(player.id, player.name, player.role);
+
+    sockets[player.id].emit('app-joined', appName);
+  }
+
+  function selectApp(roomID: RoomID, appName: string, appPath: string, players: Player[]) {
+    const playerObj: { [PlayerID]: Player } = players.reduce(
+      (acc, val) => Object.assign(acc, { [val.id.toString()]: val }),
+      {}
+    );
+    const app = createRoomApp(playerObj);
+    app.on('_onload', (socketID: PlayerID) => {
+      const names = players.map(p => p.name || '');
+      const data = app.connect(socketID);
+      app.emit(socketID, '_connected', names, data);
+    });
+
+    // Create new instance of server.js, not singleton
+    const newApp: App = new (require(appPath))(app);
+    newApp.onload();
+    roomApps[roomID] = newApp;
+
+    players.forEach(p => {
+      sockets[p.id].emit('app-joined', appName);
+    });
+  }
+
+  function leaveApp(roomID: RoomID, playerID: PlayerID) {
+    if (roomApps[roomID]) {
+      const player = roomApps[roomID].players[playerID];
+      delete roomApps[roomID].players[playerID];
+      roomApps[roomID].left(playerID, player.name, player.role);
+
+      sockets[playerID].emit('app-left');
+    }
+  }
+
+  function quitApp(roomID: RoomID) {
+    if (roomApps[roomID]) {
+      roomApps[roomID].quit();
+
+      Object.keys(roomApps[roomID].players).forEach(pid => {
+        sockets[pid].emit('app-left');
+      });
+
+      delete roomApps[roomID];
+    }
+  }
+
+  function dataRetrieved(roomID: RoomID, playerID: PlayerID, eventName: string, data: any) {
+    roomApps[roomID].execute(eventName, playerID, data);
+  }
+
   function send(socketId: PlayerID, eventName: string, data: any) {
     sockets[socketId].emit('data-app-server', eventName, data);
   }
@@ -76,24 +107,6 @@ module.exports = (sockets: { [PlayerID]: Socket }) => {
         // Overloaded by app
       }
     };
-  }
-
-  function selectApp(roomID: RoomID, appPath: string, players: Player[]) {
-    const playerObj: { [PlayerID]: Player } = players.reduce(
-      (acc, val) => Object.assign(acc, { [val.id.toString()]: val }),
-      {}
-    );
-    const app = createRoomApp(playerObj);
-    app.on('_onload', (socketID: PlayerID) => {
-      const names = players.map(p => p.name || '');
-      const data = app.connect(socketID);
-      app.emit(socketID, '_connected', names, data);
-    });
-
-    // Create new instance of server.js, not singleton
-    const newApp: App = new (require(appPath))(app);
-    newApp.onload();
-    roomApps[roomID] = newApp;
   }
 
   return {
