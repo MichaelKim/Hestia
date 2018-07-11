@@ -10,7 +10,7 @@ const socketio = require('socket.io');
 function hestia(http: any) {
   const sockets: { [PlayerID]: Socket } = {};
   const players: { [PlayerID]: Player } = {};
-  const roomManager = require('./room');
+  const roomManager = require('./room')();
   const appManager = require('./app')(sockets);
   const ons: { [string]: Function } = {};
 
@@ -48,7 +48,12 @@ function hestia(http: any) {
   };
 
   this.createRoom = (room: Object) => {
-    const roomID = roomManager.createRoom(room);
+    const roomPlayers = (room.players || []).filter(pid => players[pid]);
+
+    const roomID = roomManager.createRoom({
+      ...room,
+      players: roomPlayers
+    });
 
     roomManager.getPlayers(roomID).forEach(pid => {
       players[pid].room = roomID;
@@ -110,8 +115,6 @@ function hestia(http: any) {
           });
         }
       }
-
-      delete players[pid];
     }
   };
 

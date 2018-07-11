@@ -44,6 +44,14 @@ http.listen(5000);
 
 Full documentation coming soon!
 
+## Testing
+
+```
+npm test
+```
+
+The test suite uses Jest, and runs tests located in `test` directory.
+
 ## License
 
 [MIT](https://github.com/LenKagamine/hestia/blob/master/LICENSE)

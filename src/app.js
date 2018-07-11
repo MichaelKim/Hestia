@@ -2,9 +2,9 @@
 
 import type { Socket, Player, PlayerID, App, AppID, RoomID } from './types';
 
-const roomApps: { [RoomID]: App } = {}; //0-9999 corresponding to room id
-
 module.exports = (sockets: { [PlayerID]: Socket }) => {
+  const roomApps: { [RoomID]: App } = {}; //0-9999 corresponding to room id
+
   function joinApp(roomID: RoomID, appName: string, player: Player) {
     roomApps[roomID].players[player.id] = player;
     roomApps[roomID].joined(player.id, player.name, player.role);
