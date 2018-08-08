@@ -15,7 +15,7 @@
   "license": "MIT",
   "scripts": {
     "build": "babel src -d lib && flow-copy-source -v src lib",
-    "test": "jest test/"
+    "test": "flow check && jest test/"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -27,7 +27,7 @@
     "jest": "^23.4.0"
   },
   "dependencies": {
-    "socket.io": "^2.1.1",
-    "hestia.io-client": "^0.1.0"
+    "hestia.io-client": "^0.1.0",
+    "socket.io": "^2.1.1"
   }
 }
