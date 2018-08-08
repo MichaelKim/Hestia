@@ -1,6 +1,6 @@
 {
   "name": "hestia.io",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create multi-user apps with rooms",
   "main": "./lib/index.js",
   "author": "Michael Kim <michaelkim314@gmail.com>",

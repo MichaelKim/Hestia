@@ -1,5 +1,7 @@
 # hestia.io
 
+[![npm version](https://badge.fury.io/js/hestia.io.svg)](https://badge.fury.io/js/hestia.io)
+
 ## Features
 
 Hestia.io is a web app framework that manages instances of multi-user real-time apps.
@@ -11,7 +13,7 @@ It consists of
 
 ## Installation
 
-    npm install --save hestia-apps
+    npm install --save hestia.io
 
 ## Usage
 
@@ -23,7 +25,7 @@ const app = express();
 const http = require('http').createServer(app);
 
 // Initialize hestia
-const h = require('hestia-apps')(http);
+const h = require('hestia.io')(http);
 
 // Provide client-side app
 app.use(express.static(__dirname + '/app/client.js'));
