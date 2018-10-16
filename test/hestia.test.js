@@ -26,6 +26,21 @@ describe('socket.io mock', () => {
   });
 });
 
+describe('hestia init', () => {
+  it('create with new', () => {
+    const Hestia = require('../src/index');
+    const h = new Hestia(http);
+
+    expect(h).toHaveProperty('on');
+  });
+
+  it('create without new', () => {
+    const h = require('../src/index')(http);
+
+    expect(h).toHaveProperty('on');
+  });
+});
+
 describe('hestia connection', () => {
   const h = require('../src/index')(http);
 
@@ -82,8 +97,7 @@ describe('hestia', () => {
 
   it('createRoom, getRoom', () => {
     const h = require('../src/index')(http);
-    const roomObj = {};
-    const rid = h.createRoom(roomObj);
+    const rid = h.createRoom({});
     expect(rid).toBeGreaterThan(-1);
 
     const room = h.getRoom(rid);
@@ -113,6 +127,15 @@ describe('hestia', () => {
     });
 
     expect(h.getRoom(rid).players).toEqual([]);
+  });
+
+  it('createRoom with no players', () => {
+    const h = require('../src/index')(http);
+    const rid = h.createRoom({});
+    const rid2 = h.createRoom();
+
+    expect(h.getRoom(rid).players).toEqual([]);
+    expect(h.getRoom(rid2).players).toEqual([]);
   });
 
   it('createRoom: cannot override id or app', () => {
