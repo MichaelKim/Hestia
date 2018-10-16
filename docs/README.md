@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Class: Hestia](#hestia)
-  - [new Hestia(httpServer)](#new-hestiahttpserver)
+  - [new Hestia(httpServer)](#new-hestiahttpserver-httpserver-hestia)
   - [hestia.io](#hestiaio-server)
   - [hestia.on(eventName, callback)](#hestiaoneventname-string-callback-socket-socket-data-any--void)
   - [hestia.addPlayer(player)](#hestiaaddplayerplayer-player)
