@@ -7,7 +7,10 @@ import type { Socket, Player, Room, PlayerID, RoomID, AppID } from './types';
 const read = require('fs').readFileSync;
 const socketio = require('socket.io');
 
-function hestia(http: any) {
+function Hestia(http: any) {
+  if (!(this instanceof Hestia)) return new Hestia(http);
+
+
   const sockets: { [PlayerID]: Socket } = {};
   const players: { [PlayerID]: Player } = {};
   const roomManager = require('./room')();
@@ -47,8 +50,13 @@ function hestia(http: any) {
     players[pid] = editFn(players[pid]);
   };
 
-  this.createRoom = (room: Object) => {
-    const roomPlayers = (room.players || []).filter(pid => players[pid]);
+  this.createRoom = (room: ?Object) => {
+    const playerList =
+      (room && room.players && room.players.constructor === Array)
+        ? room.players
+        : [];
+
+    const roomPlayers: Array<PlayerID> = playerList.filter(pid => players[pid]);
 
     const roomID = roomManager.createRoom({
       ...room,
@@ -166,4 +174,4 @@ function hestia(http: any) {
   });
 }
 
-module.exports = (http: any) => new hestia(http);
+module.exports = Hestia;
