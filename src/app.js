@@ -1,6 +1,15 @@
-/* @flow */
+/* @flow strict */
 
-import type { Socket, Player, PlayerID, App, AppID, RoomID } from './types';
+import type {
+  EventData,
+  Socket,
+  Player,
+  PlayerID,
+  App,
+  AppPlayers,
+  AppID,
+  RoomID
+} from './types';
 
 module.exports = (sockets: { [PlayerID]: Socket }) => {
   const roomApps: { [RoomID]: App } = {}; //0-9999 corresponding to room id
@@ -12,9 +21,14 @@ module.exports = (sockets: { [PlayerID]: Socket }) => {
     sockets[player.id].emit('app-joined', appName);
   }
 
-  function selectApp(roomID: RoomID, appName: string, appPath: string, players: Player[]) {
-    const playerObj: { [PlayerID]: Player } = players.reduce(
-      (acc, val) => Object.assign(acc, { [val.id.toString()]: val }),
+  function selectApp(
+    roomID: RoomID,
+    appName: string,
+    appPath: string,
+    players: Player[]
+  ) {
+    const playerObj: AppPlayers = players.reduce(
+      (acc, val) => Object.assign(acc, { [val.id]: val }),
       {}
     );
     const app = createRoomApp(playerObj);
@@ -56,15 +70,20 @@ module.exports = (sockets: { [PlayerID]: Socket }) => {
     }
   }
 
-  function dataRetrieved(roomID: RoomID, playerID: PlayerID, eventName: string, data: any) {
+  function dataRetrieved(
+    roomID: RoomID,
+    playerID: PlayerID,
+    eventName: string,
+    data: EventData
+  ) {
     roomApps[roomID].execute(eventName, playerID, data);
   }
 
-  function send(socketId: PlayerID, eventName: string, data: any) {
+  function send(socketId: PlayerID, eventName: string, data: EventData) {
     sockets[socketId].emit('data-app-server', eventName, data);
   }
 
-  function createRoomApp(players: { [PlayerID]: Player }): App {
+  function createRoomApp(players: AppPlayers): App {
     return {
       players, //{ID: { name: NAME, role: ROLE }}
 

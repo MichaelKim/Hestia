@@ -44,7 +44,7 @@ http.listen(5000);
 
 ## Documentation
 
-Full documentation coming soon!
+Check out the docs [here](/docs)!
 
 ## Testing
 

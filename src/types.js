@@ -1,8 +1,13 @@
-/* @flow */
+/* @flow strict */
+
+export type EventData = mixed[];
 
 export type Socket = {|
-  on(eventName: string, callback: Function): void,
-  emit(eventName: string, ...data: any): void,
+  on(
+    eventName: string,
+    callback: (eventName: string, data: EventData) => void
+  ): void,
+  emit(eventName: string, ...data: EventData): void,
   disconnect(number): void,
   id: PlayerID
 |};
@@ -30,17 +35,19 @@ export type RoomID = number;
 
 // App
 
+type AppCallback = (socketId: PlayerID, ...data?: EventData) => void;
+export type AppPlayers = { [PlayerID]: Player };
 export type App = {|
-  +players: { [PlayerID]: Player },
-  +ons: Object,
-  on(eventName: string, callback: Function): void,
-  emit(socketId: PlayerID, eventName: string, ...data: any): void,
-  emitAll(eventName: string, ...data: any): void,
-  execute(eventName: string, socketId: PlayerID, data: any): void,
+  +players: AppPlayers,
+  +ons: {| +[eventName: string]: AppCallback |},
+  on(eventName: string, callback: AppCallback): void,
+  emit(socketId: PlayerID, eventName: string, ...data: EventData): void,
+  emitAll(eventName: string, ...data: EventData): void,
+  execute(eventName: string, socketId: PlayerID, data: EventData): void,
   joined(id: PlayerID, name: string, role: number): void,
   left(id: PlayerID, name: string, role: number): void,
   onload(): void,
-  connect(id: PlayerID): any[],
+  connect(id: PlayerID): EventData,
   quit(): void
 |};
 

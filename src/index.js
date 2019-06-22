@@ -1,36 +1,52 @@
-/* @flow */
+/* @flow strict */
 
 'use strict';
 
-import type { Socket, Player, Room, PlayerID, RoomID, AppID } from './types';
+import type {
+  EventData,
+  Socket,
+  Player,
+  Room,
+  PlayerID,
+  RoomID,
+  AppID
+} from './types';
+import type { Server } from 'http';
+
+type Callback = (socket: Socket, ...data?: EventData) => void;
 
 const read = require('fs').readFileSync;
 const socketio = require('socket.io');
 
-function Hestia(http: any) {
+function Hestia(http: Server) {
   if (!(this instanceof Hestia)) return new Hestia(http);
-
 
   const sockets: { [PlayerID]: Socket } = {};
   const players: { [PlayerID]: Player } = {};
   const roomManager = require('./room')();
   const appManager = require('./app')(sockets);
-  const ons: { [string]: Function } = {};
+  const ons: { [string]: Callback } = {};
 
   this.io = socketio(http);
   http.on('request', (req, res) => {
     if (req.url === '/hestia.js') {
       res.setHeader('Content-Type', 'application/javascript');
       res.writeHead(200);
-      res.end(read(require.resolve('hestia.io-client/dist/hestia.js')), 'utf-8');
+      res.end(
+        read(require.resolve('hestia.io-client/dist/hestia.js')),
+        'utf-8'
+      );
     } else if (req.url === '/appHeader.js') {
       res.setHeader('Content-Type', 'application/javascript');
       res.writeHead(200);
-      res.end(read(require.resolve('hestia.io-client/dist/appHeader.js')), 'utf-8');
+      res.end(
+        read(require.resolve('hestia.io-client/dist/appHeader.js')),
+        'utf-8'
+      );
     }
   });
 
-  this.on = (eventName: string, callback: Function) => {
+  this.on = (eventName: string, callback: Callback) => {
     ons[eventName] = callback;
   };
 
@@ -50,9 +66,9 @@ function Hestia(http: any) {
     players[pid] = editFn(players[pid]);
   };
 
-  this.createRoom = (room: ?Object) => {
+  this.createRoom = (room: ?$Shape<Room>) => {
     const playerList =
-      (room && room.players && room.players.constructor === Array)
+      room && room.players && room.players.constructor === Array
         ? room.players
         : [];
 
@@ -149,7 +165,7 @@ function Hestia(http: any) {
       socket.on(eventName, (...args) => ons[eventName](socket, ...args));
     });
 
-    socket.on('dataApp', (eventName: string, data: any) => {
+    socket.on('dataApp', (eventName: string, data: EventData) => {
       // Should this be in App Manager?
       const player = players[socket.id];
       appManager.dataRetrieved(player.room, socket.id, eventName, data);

@@ -1,4 +1,4 @@
-/* @flow */
+/* @flow strict */
 
 import type { Player, PlayerID, Room, RoomID, AppID } from './types';
 
@@ -6,7 +6,7 @@ module.exports = () => {
   const rooms: { [RoomID]: Room } = {}; // From 0000 to 9999 (10000 rooms available)
 
   // Create a new randomly generated room
-  function createRoom(room: Object): RoomID {
+  function createRoom(room: $Shape<Room>): RoomID {
     const roomID = generateRoomID();
 
     rooms[roomID] = {

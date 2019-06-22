@@ -195,7 +195,7 @@ h.editPlayer(playerID, player => ({
 }));
 ```
 
-### hestia.createRoom(room: _?Object_): RoomID
+### hestia.createRoom(room: _?\$Shape\<Room\>_): RoomID
 
 - `room`: Partial room object
 - **Returns:** the ID of the new room
